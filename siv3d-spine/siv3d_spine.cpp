@@ -128,7 +128,7 @@ void CS3dSpineDrawable::Draw()
 			spine::AtlasRegion* pAtlasRegion = static_cast<spine::AtlasRegion*>(pRegionAttachment->getRegion());
 
 			isAlphaPremultiplied = pAtlasRegion->page->pma;
-			pTexture = reinterpret_cast<s3d::Texture*>(pAtlasRegion->rendererObject);
+			pTexture = reinterpret_cast<s3d::Texture*>(pAtlasRegion->page->texture);
 #else
 			spine::AtlasRegion* pAtlasRegion = static_cast<spine::AtlasRegion*>(pRegionAttachment->getRendererObject());
 #ifdef SPINE_4_0
@@ -156,7 +156,7 @@ void CS3dSpineDrawable::Draw()
 			spine::AtlasRegion* pAtlasRegion = static_cast<spine::AtlasRegion*>(pMeshAttachment->getRegion());
 
 			isAlphaPremultiplied = pAtlasRegion->page->pma;
-			pTexture = reinterpret_cast<s3d::Texture*>(pAtlasRegion->rendererObject);
+			pTexture = reinterpret_cast<s3d::Texture*>(pAtlasRegion->page->texture);
 #else
 			spine::AtlasRegion* pAtlasRegion = static_cast<spine::AtlasRegion*>(pMeshAttachment->getRendererObject());
 #ifdef SPINE_4_0
