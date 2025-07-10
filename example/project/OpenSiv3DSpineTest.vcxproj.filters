@@ -1,0 +1,317 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource File">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header File">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Source File">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header File\siv3d-spine">
+      <UniqueIdentifier>{e019ff0a-8333-4828-83ab-bb4090e0a051}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source File\siv3d-spine">
+      <UniqueIdentifier>{411dcbd6-6a76-4e25-862b-58c04d9f9fda}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source File\siv3d-imgui">
+      <UniqueIdentifier>{d4e1f724-4b50-4fac-93b3-5b1b0067af61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header File\siv3d-imgui">
+      <UniqueIdentifier>{73b62598-9c51-4655-839b-874a8d3d1b1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source File\siv3d-imgui\imgui-1.92.0">
+      <UniqueIdentifier>{5bf70c52-c3ee-4b44-bd1e-7565b5157bd0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header File\wic">
+      <UniqueIdentifier>{07ea5cf7-fa28-481f-8807-3d99555e617f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source File\wic">
+      <UniqueIdentifier>{8b73e0ee-c4d2-435f-99b3-54d2fb1548af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source File\siv3d-spine\spine-cpp-4.1">
+      <UniqueIdentifier>{4ce1bc45-23b8-4654-868e-6dcf1883036f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\Main.cpp">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\siv3d_main_window.cpp">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\siv3d_window_menu.cpp">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\siv3d_recorder.cpp">
+      <Filter>Source File</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\siv3d-spine\siv3d_spine.cpp">
+      <Filter>Source File\siv3d-spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\siv3d-spine\siv3d_spine_player.cpp">
+      <Filter>Source File\siv3d-spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\siv3d-spine\spine_loader.cpp">
+      <Filter>Source File\siv3d-spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\siv3d-spine\spine_player.cpp">
+      <Filter>Source File\siv3d-spine</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\imgui-1.92.0\imgui.cpp">
+      <Filter>Source File\siv3d-imgui\imgui-1.92.0</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\imgui-1.92.0\imgui_demo.cpp">
+      <Filter>Source File\siv3d-imgui\imgui-1.92.0</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\imgui-1.92.0\imgui_draw.cpp">
+      <Filter>Source File\siv3d-imgui\imgui-1.92.0</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\imgui-1.92.0\imgui_tables.cpp">
+      <Filter>Source File\siv3d-imgui\imgui-1.92.0</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\imgui-1.92.0\imgui_widgets.cpp">
+      <Filter>Source File\siv3d-imgui\imgui-1.92.0</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\wic\wic_gif_encoder.cpp">
+      <Filter>Source File\wic</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\Animation.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\AnimationState.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\AnimationStateData.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\Atlas.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\AtlasAttachmentLoader.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\Attachment.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\AttachmentLoader.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\AttachmentTimeline.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\Bone.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\BoneData.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\BoundingBoxAttachment.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\ClippingAttachment.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\ColorTimeline.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\ConstraintData.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\CurveTimeline.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\DeformTimeline.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\DrawOrderTimeline.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\Event.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\EventData.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\EventTimeline.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\Extension.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\IkConstraint.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\IkConstraintData.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\IkConstraintTimeline.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\Json.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\LinkedMesh.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\Log.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\MathUtil.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\MeshAttachment.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\PathAttachment.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\PathConstraint.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\PathConstraintData.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\PathConstraintMixTimeline.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\PathConstraintPositionTimeline.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\PathConstraintSpacingTimeline.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\PointAttachment.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\RegionAttachment.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\RotateTimeline.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\RTTI.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\ScaleTimeline.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\Sequence.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\SequenceTimeline.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\ShearTimeline.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\Skeleton.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\SkeletonBinary.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\SkeletonBounds.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\SkeletonClipping.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\SkeletonData.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\SkeletonJson.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\Skin.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\Slot.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\SlotData.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\SpineObject.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\TextureLoader.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\Timeline.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\TransformConstraint.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\TransformConstraintData.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\TransformConstraintTimeline.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\TranslateTimeline.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\Triangulator.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\Updatable.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-cpp-4.1\src\spine\VertexAttachment.cpp">
+      <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\imgui\siv3d_imgui.cpp">
+      <Filter>Source File\siv3d-imgui</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="App\Resource.rc">
+      <Filter>Resource File</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\siv3d_main_window.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\siv3d_window_menu.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\siv3d_recorder.h">
+      <Filter>Header File</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\wic\wic_gif_encoder.h">
+      <Filter>Header File\wic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\siv3d-spine\siv3d_spine.h">
+      <Filter>Header File\siv3d-spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\siv3d-spine\siv3d_spine_blendmode.h">
+      <Filter>Header File\siv3d-spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\siv3d-spine\siv3d_spine_player.h">
+      <Filter>Header File\siv3d-spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\siv3d-spine\spine_loader.h">
+      <Filter>Header File\siv3d-spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\siv3d-spine\spine_player.h">
+      <Filter>Header File\siv3d-spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\imgui\siv3d_imgui.h">
+      <Filter>Header File\siv3d-imgui</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
