@@ -744,6 +744,7 @@ void CSiv3dMainWindow::ImGuiHelpDialogue() const
 		{"Wheel", "Scale up/down window"},
 		{"Ctrl + wheel", "Zoom in/out"},
 		{"L + wheel", "Speed up/down animation"},
+		{"M-click", "Reset zoom, speed, offset."},
 		{"R + M-click", "Show/hide window's border"},
 		{"Ctrl + L-drag", "Move borderless window"},
 	};
