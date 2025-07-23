@@ -398,6 +398,8 @@ s3d::FilePath CSiv3dMainWindow::BuildExportFilePath()
 {
 	const s3d::FilePath& moduleDirectory = s3d::FileSystem::ParentPath(s3d::FileSystem::ModulePath());
 	const s3d::FilePath& saveFolderPath = moduleDirectory + s3d::Window::GetTitle() + U'/';
+	/* s3d::BinaryWriter does create non-existent directory, but cv::VideoWriter not. */
+	s3d::FileSystem::CreateDirectories(saveFolderPath);
 
 	const char* pzAnimationName = m_siv3dSpinePlayer.GetCurrentAnimationName();
 	s3d::String fileName = pzAnimationName == nullptr ? U"" : s3d::Unicode::FromUTF8(pzAnimationName);

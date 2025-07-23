@@ -94,9 +94,6 @@ bool CSiv3dRecorder::End(s3d::FilePath& filePath)
 	if (m_outputType == EOutputType::Gif)
 	{
 #if SIV3D_PLATFORM(WINDOWS)
-		/* Though Siv3D API are designed to create nonexistent directory when to write file, here is outside. */
-		s3d::FileSystem::CreateDirectories(s3d::FileSystem::ParentPath(filePath));
-
 		CWicGifEncoder wicGifEncoder;
 		wicGifEncoder.Initialise(s3d::Unicode::ToWstring(filePath).c_str());
 		if (wicGifEncoder.HasBeenInitialised())
