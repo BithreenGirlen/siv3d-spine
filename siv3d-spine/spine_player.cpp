@@ -570,6 +570,33 @@ FPoint2 CSpinePlayer::GetBaseSize() const
 	return m_fBaseSize;
 }
 
+void CSpinePlayer::SetBaseSize(float fWidth, float fHeight)
+{
+	m_fBaseSize = { fWidth, fHeight };
+	WorkOutDefaultScale();
+	m_fDefaultOffset = m_fOffset;
+
+	ResetScale();
+}
+
+void CSpinePlayer::ResetBaseSize()
+{
+	WorkOutDefaultSize();
+	WorkOutDefaultScale();
+
+	m_fOffset = {};
+	UpdatePosition();
+	for (const auto& drawable : m_drawables)
+	{
+		drawable->animationState->setEmptyAnimations(0.f);
+		drawable->Update(0.f);
+	}
+
+	WorkOutDefaultOffset();
+	ResetScale();
+	RestartAnimation();
+}
+
 FPoint2 CSpinePlayer::GetOffset() const
 {
 	return m_fOffset;

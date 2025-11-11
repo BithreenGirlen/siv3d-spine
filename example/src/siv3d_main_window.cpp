@@ -92,7 +92,7 @@ void CSiv3dMainWindow::InitialiseMenuBar()
 		{
 			{ U"File", { U"Open file"} },
 			{ U"Export", { U"Snap as Webp", U"Export as GIF", U"Export as video"} },
-			{ U"Window", { U"Hide Spine parameter", U"Show help"}}
+			{ U"Window", { U"Hide Spine parameter", U"Show help", U"Fit base size to current frame", U"Reset base size"}}
 		};
 
 		const s3d::Array<s3d::Array<CSiv3dWindowMenu::ItemProprty>> menuItemProperties
@@ -107,7 +107,23 @@ void CSiv3dMainWindow::InitialiseMenuBar()
 			},
 			{
 				{ std::bind(&CSiv3dMainWindow::MenuOnHideSpineParameter, this), CSiv3dWindowMenu::Restrictive::Yes },
-				{ std::bind(&CSiv3dMainWindow::MenuOnShowHelp, this), CSiv3dWindowMenu::Restrictive::No }
+				{ std::bind(&CSiv3dMainWindow::MenuOnShowHelp, this), CSiv3dWindowMenu::Restrictive::No },
+				{ [this] /* 手動変更された現在の表示範囲に合わせる */
+					{
+						if (m_pSpinePlayerTexture.get() == nullptr) return;
+
+						const s3d::Size targetSize = m_pSpinePlayerTexture->size();
+						const float fSkeletonScale = m_siv3dSpinePlayer.GetSkeletonScale();
+						s3d::Vector2D<float> baseSize = targetSize / fSkeletonScale;
+
+						m_siv3dSpinePlayer.SetBaseSize(baseSize.x, baseSize.y);
+						ResizeWindow();
+					}, CSiv3dWindowMenu::Restrictive::Yes},
+				{ [this] /* 既定の表示範囲に戻す */
+					{
+						m_siv3dSpinePlayer.ResetBaseSize();
+						ResizeWindow();
+					}, CSiv3dWindowMenu::Restrictive::Yes},
 			}
 		};
 
@@ -355,6 +371,7 @@ void CSiv3dMainWindow::CheckRenderTextureSize()
 		const auto& textureSize = s3d::Size{ windowSize.x, windowSize.y - menuBarHeight };
 
 		m_pSpinePlayerTexture = std::make_unique<s3d::RenderTexture>(textureSize);
+		/* s3d::Graphics2D::GetRenderTargetSize()呼び出しを避ける。 */
 		m_siv3dSpinePlayer.OnResize(textureSize);
 	}
 }

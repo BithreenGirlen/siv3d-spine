@@ -86,6 +86,9 @@ public:
 	bool ReplaceAttachment(const char* szSlotName, const char* szAttachmentName);
 
 	FPoint2 GetBaseSize() const;
+	void SetBaseSize(float fWidth, float fHeight);
+	void ResetBaseSize();
+
 	FPoint2 GetOffset() const;
 
 	float GetSkeletonScale() const;
