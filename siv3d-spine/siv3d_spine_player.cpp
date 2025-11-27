@@ -16,10 +16,7 @@ void CSiv3dSpinePlayer::Redraw()
 {
 	if (!m_drawables.empty())
 	{
-		float fX = (m_fBaseSize.x * m_fSkeletonScale - m_sceneSize.x) / 2;
-		float fY = (m_fBaseSize.y * m_fSkeletonScale - m_sceneSize.y) / 2;
-		const s3d::Mat3x2 matrix = s3d::Mat3x2::Scale(m_fSkeletonScale).translated(-fX, -fY);
-		const s3d::Transformer2D t(matrix);
+		const s3d::Transformer2D t(CalculateTransformMatrix());
 
 		if (!m_isDrawOrderReversed)
 		{
@@ -36,6 +33,27 @@ void CSiv3dSpinePlayer::Redraw()
 			}
 		}
 	}
+}
+
+s3d::Mat3x2 CSiv3dSpinePlayer::CalculateTransformMatrix() const
+{
+	float fX = (m_fBaseSize.x * m_fSkeletonScale - m_sceneSize.x) / 2;
+	float fY = (m_fBaseSize.y * m_fSkeletonScale - m_sceneSize.y) / 2;
+	return s3d::Mat3x2::Scale(m_fSkeletonScale).translated(-fX, -fY);
+}
+
+s3d::Vector4D<float> CSiv3dSpinePlayer::GetCurrentBoundingOfSlot(const std::string& slotName) const
+{
+	bool found = false;
+	for (const auto& drawable : m_drawables)
+	{
+		const auto& rect = drawable->GetBoundingBoxOfSlot(slotName.c_str(), slotName.size(), &found);
+		if (found)
+		{
+			return rect;
+		}
+	}
+	return {};
 }
 
 void CSiv3dSpinePlayer::WorkOutDefaultScale()

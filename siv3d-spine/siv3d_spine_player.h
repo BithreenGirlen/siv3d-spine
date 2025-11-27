@@ -12,6 +12,9 @@ public:
 	virtual void Redraw();
 
 	void OnResize(const s3d::Size& size) { m_sceneSize = size; }
+
+	s3d::Mat3x2 CalculateTransformMatrix() const;
+	s3d::Vector4D<float> GetCurrentBoundingOfSlot(const std::string& slotName) const;
 private:
 	virtual void WorkOutDefaultScale();
 	virtual void WorkOutDefaultOffset();

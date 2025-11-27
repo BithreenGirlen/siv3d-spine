@@ -50,9 +50,6 @@ void CSiv3dMainWindow::Display()
 		ImGui_ImplSiv3d_NewFrame();
 		ImGui::NewFrame();
 
-		ImGuiSpineParameterDialogue();
-		ImGuiHelpDialogue();
-
 		m_siv3dWindowMenu.Update();
 
 		HandleMouseEvent();
@@ -73,6 +70,9 @@ void CSiv3dMainWindow::Display()
 
 			SpinePostRendering();
 		}
+
+		ImGuiSpineParameterDialogue();
+		ImGuiHelpDialogue();
 
 		ImGui::Render();
 		ImGui_ImplSiv3d_RenderDrawData();
@@ -527,6 +527,25 @@ void CSiv3dMainWindow::ImGuiSpineParameterDialogue()
 		}
 	};
 
+	const auto ScrollableSliderFloat = [](const char* label, float* v, float v_min, float v_max)
+		-> void
+		{
+			ImGui::SliderFloat(label, v, v_min, v_max, "%.1f");
+			ImGui::SetItemKeyOwner(ImGuiKey_MouseWheelY);
+			if (ImGui::IsItemHovered())
+			{
+				float wheel = ImGui::GetIO().MouseWheel;
+				if (wheel > 0 && *v < v_max)
+				{
+					++(*v);
+				}
+				else if (wheel < 0 && *v > v_min)
+				{
+					--(*v);
+				}
+			}
+		};
+
 	ImGui::Begin("Spine parameter/manipulator");
 
 	/* 寸法・座標・拡縮度 */
@@ -545,6 +564,45 @@ void CSiv3dMainWindow::ImGuiSpineParameterDialogue()
 		ImGui::Text("Offset: (%.2f, %.2f)", offset.x, offset.y);
 		ImGui::Text("Skeleton scale: %.2f", m_siv3dSpinePlayer.GetSkeletonScale());
 		ImGui::Text("Canvas scale: %.2f", m_siv3dSpinePlayer.GetCanvasScale());
+
+		if (ImGui::TreeNode("Slot bounding"))
+		{
+			const std::vector<std::string>& slotNames = m_siv3dSpinePlayer.GetSlotNames();
+			static ImGuiComboBox slotsComboBox;
+			slotsComboBox.Update(slotNames, "Slot##SlotBounding");
+			const auto& slotBounding = m_siv3dSpinePlayer.GetCurrentBoundingOfSlot(slotNames[slotsComboBox.selectedIndex]);
+			if (slotBounding.z == 0.f)
+			{
+				ImGui::TextColored(ImVec4{ 1.f, 0.f, 0.f, 1.f }, "Slot not found in this animation.");
+			}
+			else
+			{
+				ImGui::Text("Slot bounding: (%.2f, %.2f, %.2f, %.2f)", slotBounding.x, slotBounding.y, slotBounding.x + slotBounding.z, slotBounding.y + slotBounding.w);
+
+				static bool toDrawRect = false;
+				ImGui::Checkbox("Draw slot bounding", &toDrawRect);
+				if (toDrawRect)
+				{
+					static constexpr float fMinThickness = 1.f;
+					static constexpr float fMaxThickness = 14.f;
+					static float fThickness = 2.f;
+					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.4f);
+					ScrollableSliderFloat("Thickness", &fThickness, fMinThickness, fMaxThickness);
+
+					static ImVec4 fRectangleColor = ImVec4(240 / 255.f, 240 / 255.f, 240 / 255.f, 1.00f);
+					ImGui::SameLine();
+					ImGui::ColorEdit4("Colour", (float*)&fRectangleColor, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_NoInputs);
+					{
+						const s3d::RectF rectF{ slotBounding.x, slotBounding.y, slotBounding.z, slotBounding.w };
+						const s3d::ColorF colour(fRectangleColor.x, fRectangleColor.y, fRectangleColor.z, fRectangleColor.w);
+						const s3d::Transformer2D t(m_siv3dSpinePlayer.CalculateTransformMatrix());
+						rectF.drawFrame(fThickness, colour);
+					}
+				}
+			}
+
+			ImGui::TreePop();
+		}
 	}
 
 	/* 動作名・動作指定・動作合成 */

@@ -31,6 +31,7 @@ public:
 	void SetSlotsToLeaveOut(spine::Vector<spine::String>& slotNames);
 
 	s3d::Vector4D<float> GetBoundingBox() const;
+	s3d::Vector4D<float> GetBoundingBoxOfSlot(const char* slotName, size_t nameLength, bool* found = nullptr) const;
 private:
 	bool m_hasOwnAnimationStateData = false;
 

@@ -281,6 +281,70 @@ s3d::Vector4D<float> CS3dSpineDrawable::GetBoundingBox() const
 	return boundingBox;
 }
 
+s3d::Vector4D<float> CS3dSpineDrawable::GetBoundingBoxOfSlot(const char* slotName, size_t nameLength, bool* found) const
+{
+	float fMinX = FLT_MAX;
+	float fMinY = FLT_MAX;
+	float fMaxX = -FLT_MAX;
+	float fMaxY = -FLT_MAX;
+
+	if (skeleton != nullptr)
+	{
+		for (size_t i = 0; i < skeleton->getSlots().size(); ++i)
+		{
+			spine::Slot& slot = *skeleton->getDrawOrder()[i];
+			const spine::String& slotDataName = slot.getData().getName();
+			if (nameLength != slotDataName.length())continue;
+
+			if (::memcmp(slotDataName.buffer(), slotName, slotDataName.length()) == 0)
+			{
+				spine::Attachment* pAttachment = slot.getAttachment();
+				if (pAttachment != nullptr)
+				{
+					spine::Vector<float> tempVertices;
+					if (pAttachment->getRTTI().isExactly(spine::RegionAttachment::rtti))
+					{
+						spine::RegionAttachment* pRegionAttachment = static_cast<spine::RegionAttachment*>(pAttachment);
+
+						tempVertices.setSize(8, 0);
+#ifdef SPINE_4_1_OR_LATER
+						pRegionAttachment->computeWorldVertices(slot, tempVertices, 0, 2);
+#else
+						pRegionAttachment->computeWorldVertices(slot.getBone(), tempVertices, 0, 2);
+#endif
+					}
+					else if (pAttachment->getRTTI().isExactly(spine::MeshAttachment::rtti))
+					{
+						spine::MeshAttachment* pMeshAttachment = static_cast<spine::MeshAttachment*>(pAttachment);
+						tempVertices.setSize(pMeshAttachment->getWorldVerticesLength(), 0);
+						pMeshAttachment->computeWorldVertices(slot, 0, pMeshAttachment->getWorldVerticesLength(), tempVertices, 0, 2);
+					}
+					else
+					{
+						continue;
+					}
+
+					for (size_t i = 0; i < tempVertices.size(); i += 2)
+					{
+						float fX = tempVertices[i];
+						float fY = tempVertices[i + 1LL];
+
+						fMinX = s3d::Min(fMinX, fX);
+						fMinY = s3d::Min(fMinY, fY);
+						fMaxX = s3d::Max(fMaxX, fX);
+						fMaxY = s3d::Max(fMaxY, fY);
+					}
+
+					if (found != nullptr)*found = true;
+					break;
+				}
+			}
+		}
+	}
+
+	return s3d::Vector4D<float>{ fMinX, fMinY, fMaxX - fMinX, fMaxY - fMinY };
+}
+
 bool CS3dSpineDrawable::IsSlotToBeLeftOut(const spine::String& slotName)
 {
 	return m_slotsToLeaveOut.contains(slotName);
