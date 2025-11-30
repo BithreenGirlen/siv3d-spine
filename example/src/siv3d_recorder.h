@@ -22,10 +22,12 @@ public:
 
 	bool IsUnderRecording() const;
 	EOutputType GetOutputType() const;
+	s3d::int32 GetFps() const;
 
 	bool HasTimePassed() const;
-	/// @brief フレーム保存。設定FPSより早く呼び出された場合何もしない。
+	/// @brief フレーム保存。
 	bool CommitFrame(const s3d::RenderTexture& frame);
+	bool HasFrames() const;
 
 	/// @param filePath 出力先。拡張子がない場合出力形式に応じて自動付与。
 	bool End(s3d::FilePath& filePath);

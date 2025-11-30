@@ -55,7 +55,12 @@ void CSiv3dMainWindow::Display()
 		HandleMouseEvent();
 		HandleKeyboardEvent();
 
-		m_siv3dSpinePlayer.Update(static_cast<float>(s3d::Scene::DeltaTime()));
+		float fDelta = static_cast<float>(s3d::Scene::DeltaTime());
+		if (m_siv3dRecorder.IsUnderRecording())
+		{
+			fDelta = m_siv3dRecorder.HasFrames() ? 1.f / m_siv3dRecorder.GetFps() : 0.f;
+		}
+		m_siv3dSpinePlayer.Update(fDelta);
 
 		s3d::int32 menuBarHeight = m_siv3dWindowMenu.IsVisible() ? s3d::SimpleMenuBar::MenuBarHeight : 0;
 		if (m_pSpinePlayerTexture.get() != nullptr)
@@ -398,7 +403,7 @@ void CSiv3dMainWindow::SpinePostRendering()
 		s3d::Vector4D<float> animationWatch{};
 		m_siv3dSpinePlayer.GetCurrentAnimationTime(&animationWatch.x, &animationWatch.y, &animationWatch.z, &animationWatch.w);
 		/* 一周し終わったら書き出し。 */
-		if (animationWatch.x > animationWatch.w)
+		if (::isgreater(animationWatch.x, animationWatch.w))
 		{
 			s3d::FilePath filePath = BuildExportFilePath();
 			m_siv3dRecorder.End(filePath);

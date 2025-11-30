@@ -39,6 +39,11 @@ CSiv3dRecorder::EOutputType CSiv3dRecorder::GetOutputType() const
 	return m_outputType;
 }
 
+s3d::int32 CSiv3dRecorder::GetFps() const
+{
+	return m_fps;
+}
+
 bool CSiv3dRecorder::HasTimePassed() const
 {
 	double currentTime = s3d::Scene::Time();
@@ -52,19 +57,21 @@ bool CSiv3dRecorder::CommitFrame(const s3d::RenderTexture& frame)
 {
 	if (IsUnderRecording())
 	{
-		if (HasTimePassed())
-		{
-			s3d::RenderTexture copiedFrame(m_frameSize);
-			s3d::Shader::Copy(frame, copiedFrame);
-			m_frames.push_back(std::move(copiedFrame));
+		s3d::RenderTexture copiedFrame(m_frameSize);
+		s3d::Shader::Copy(frame, copiedFrame);
+		m_frames.push_back(std::move(copiedFrame));
 
-			m_lastTime = s3d::Scene::Time();
+		m_lastTime = s3d::Scene::Time();
 
-			return true;
-		}
+		return true;
 	}
 
 	return false;
+}
+
+bool CSiv3dRecorder::HasFrames() const
+{
+	return !m_frames.empty();
 }
 
 bool CSiv3dRecorder::End(s3d::FilePath& filePath)
