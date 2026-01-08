@@ -200,11 +200,11 @@ void CSpinePlayer::SetAnimationByIndex(size_t nIndex)
 	}
 }
 
-void CSpinePlayer::SetAnimationByName(const char* szAnimationName)
+void CSpinePlayer::SetAnimationByName(const char* animationName)
 {
-	if (szAnimationName != nullptr)
+	if (animationName != nullptr)
 	{
-		const auto& iter = std::find(m_animationNames.begin(), m_animationNames.end(), szAnimationName);
+		const auto& iter = std::find(m_animationNames.begin(), m_animationNames.end(), animationName);
 		if (iter != m_animationNames.cend())
 		{
 			m_nAnimationIndex = std::distance(m_animationNames.begin(), iter);
@@ -216,11 +216,11 @@ void CSpinePlayer::SetAnimationByName(const char* szAnimationName)
 void CSpinePlayer::RestartAnimation(bool loop)
 {
 	if (m_nAnimationIndex >= m_animationNames.size())return;
-	const char* szAnimationName = m_animationNames[m_nAnimationIndex].c_str();
+	const char* animationName = m_animationNames[m_nAnimationIndex].c_str();
 
 	for (const auto& pDrawable : m_drawables)
 	{
-		spine::Animation* pAnimation = pDrawable->skeleton->getData()->findAnimation(szAnimationName);
+		spine::Animation* pAnimation = pDrawable->skeleton->getData()->findAnimation(animationName);
 		if (pAnimation != nullptr)
 		{
 			pDrawable->animationState->setAnimation(0, pAnimation->getName(), loop);
@@ -237,11 +237,11 @@ void CSpinePlayer::SetSkinByIndex(size_t nIndex)
 	}
 }
 
-void CSpinePlayer::SetSkinByName(const char* szSkinName)
+void CSpinePlayer::SetSkinByName(const char* skinName)
 {
-	if (szSkinName != nullptr)
+	if (skinName != nullptr)
 	{
-		const auto& iter = std::find(m_skinNames.begin(), m_skinNames.end(), szSkinName);
+		const auto& iter = std::find(m_skinNames.begin(), m_skinNames.end(), skinName);
 		if (iter != m_skinNames.cend())
 		{
 			m_nSkinIndex = std::distance(m_skinNames.begin(), iter);
@@ -253,11 +253,11 @@ void CSpinePlayer::SetSkinByName(const char* szSkinName)
 void CSpinePlayer::SetupSkin()
 {
 	if (m_nSkinIndex >= m_skinNames.size())return;
-	const char* szSkinName = m_skinNames[m_nSkinIndex].c_str();
+	const char* skinName = m_skinNames[m_nSkinIndex].c_str();
 
 	for (const auto& pDrawable : m_drawables)
 	{
-		spine::Skin* skin = pDrawable->skeleton->getData()->findSkin(szSkinName);
+		spine::Skin* skin = pDrawable->skeleton->getData()->findSkin(skinName);
 		if (skin != nullptr)
 		{
 			pDrawable->skeleton->setSkin(skin);
@@ -265,41 +265,68 @@ void CSpinePlayer::SetupSkin()
 		}
 	}
 }
-/*乗算済み透過度有効・無効切り替え*/
+
 void CSpinePlayer::TogglePma()
 {
 	for (const auto& pDrawable : m_drawables)
 	{
-		pDrawable->isAlphaPremultiplied ^= true;
+		pDrawable->PremultiplyAlpha(!pDrawable->IsAlphaPremultiplied());
 	}
 }
-/*槽溝指定合成方法採択可否*/
-void CSpinePlayer::ToggleBlendModeAdoption()
+
+void CSpinePlayer::ToggleBlendMode() 
 {
 	for (const auto& pDrawable : m_drawables)
 	{
-		pDrawable->isToForceBlendModeNormal ^= true;
+		pDrawable->ForceBlendModeNormal(!pDrawable->IsBlendModeNormalForced());
 	}
 }
-/* 乗算済み是否 */
-bool CSpinePlayer::IsAlphaPremultiplied(size_t nDrawableIndex)
+
+bool CSpinePlayer::PremultiplyAlpha(bool toBePremultiplied, size_t nDrawableIndex)
 {
 	if (nDrawableIndex < m_drawables.size())
 	{
-		return m_drawables[nDrawableIndex]->isAlphaPremultiplied;
+		m_drawables[nDrawableIndex]->PremultiplyAlpha(toBePremultiplied);
+		return true;
 	}
 
 	return false;
 }
-/* 通常混色法強制是否*/
-bool CSpinePlayer::IsBlendModeNormalForced(size_t nDrawableIndex)
+
+bool CSpinePlayer::IsAlphaPremultiplied(size_t nDrawableIndex) const
 {
 	if (nDrawableIndex < m_drawables.size())
 	{
-		return m_drawables[nDrawableIndex]->isToForceBlendModeNormal;
+		return m_drawables[nDrawableIndex]->IsAlphaPremultiplied();
 	}
 
 	return false;
+}
+
+bool CSpinePlayer::ForceBlendModeNormal(bool toForce, size_t nDrawableIndex)
+{
+	if (nDrawableIndex < m_drawables.size())
+	{
+		m_drawables[nDrawableIndex]->ForceBlendModeNormal(toForce);
+		return true;
+	}
+
+	return false;
+}
+
+bool CSpinePlayer::IsBlendModeNormalForced(size_t nDrawableIndex) const
+{
+	if (nDrawableIndex < m_drawables.size())
+	{
+		return m_drawables[nDrawableIndex]->IsBlendModeNormalForced();
+	}
+
+	return false;
+}
+
+void CSpinePlayer::SetDrawOrder(bool toBeReversed)
+{
+	m_isDrawOrderReversed = toBeReversed;
 }
 
 bool CSpinePlayer::IsDrawOrderReversed() const
@@ -307,33 +334,6 @@ bool CSpinePlayer::IsDrawOrderReversed() const
 	return m_isDrawOrderReversed;
 }
 
-bool CSpinePlayer::PremultiplyAlpha(bool isToBePremultiplied, size_t nDrawableIndex)
-{
-	if (nDrawableIndex < m_drawables.size())
-	{
-		m_drawables[nDrawableIndex]->isAlphaPremultiplied = isToBePremultiplied;
-		return true;
-	}
-
-	return false;
-}
-
-bool CSpinePlayer::ForceBlendModeNormal(bool isToForce, size_t nDrawableIndex)
-{
-	if (nDrawableIndex < m_drawables.size())
-	{
-		m_drawables[nDrawableIndex]->isToForceBlendModeNormal = isToForce;
-		return true;
-	}
-
-	return false;
-}
-
-void CSpinePlayer::SetDrawOrder(bool isToBeReversed)
-{
-	m_isDrawOrderReversed = isToBeReversed;
-}
-/*現在の動作名と経過時間取得*/
 const char* CSpinePlayer::GetCurrentAnimationName()
 {
 	for (const auto& pDrawable : m_drawables)
@@ -673,21 +673,21 @@ bool CSpinePlayer::SetupDrawables()
 		auto& animations = pSkeletonDatum->getAnimations();
 		for (size_t i = 0; i < animations.size(); ++i)
 		{
-			const char* szAnimationName = animations[i]->getName().buffer();
-			if (szAnimationName == nullptr)continue;
+			const char* animationName = animations[i]->getName().buffer();
+			if (animationName == nullptr)continue;
 
-			const auto& iter = std::find(m_animationNames.begin(), m_animationNames.end(), szAnimationName);
-			if (iter == m_animationNames.cend())m_animationNames.push_back(szAnimationName);
+			const auto& iter = std::find(m_animationNames.begin(), m_animationNames.end(), animationName);
+			if (iter == m_animationNames.cend())m_animationNames.push_back(animationName);
 		}
 
 		auto& skins = pSkeletonDatum->getSkins();
 		for (size_t i = 0; i < skins.size(); ++i)
 		{
-			const char* szSkinName = skins[i]->getName().buffer();
-			if (szSkinName == nullptr)continue;
+			const char* skinName = skins[i]->getName().buffer();
+			if (skinName == nullptr)continue;
 
-			const auto& iter = std::find(m_skinNames.begin(), m_skinNames.end(), szSkinName);
-			if (iter == m_skinNames.cend())m_skinNames.push_back(szSkinName);
+			const auto& iter = std::find(m_skinNames.begin(), m_skinNames.end(), skinName);
+			if (iter == m_skinNames.cend())m_skinNames.push_back(skinName);
 		}
 
 		auto& slots = pSkeletonDatum->getSlots();

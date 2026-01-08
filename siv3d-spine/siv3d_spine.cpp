@@ -55,6 +55,26 @@ CS3dSpineDrawable::~CS3dSpineDrawable()
 	}
 }
 
+void CS3dSpineDrawable::PremultiplyAlpha(bool toBePremultiplied)
+{
+	m_isAlphaPremultiplied = toBePremultiplied;
+}
+
+bool CS3dSpineDrawable::IsAlphaPremultiplied() const
+{
+	return m_isAlphaPremultiplied;
+}
+
+void CS3dSpineDrawable::ForceBlendModeNormal(bool toForce)
+{
+	m_toForceBlendModeNormal = toForce;
+}
+
+bool CS3dSpineDrawable::IsBlendModeNormalForced() const
+{
+	return m_toForceBlendModeNormal;
+}
+
 void CS3dSpineDrawable::Update(float fDelta)
 {
 	if (skeleton != nullptr && animationState != nullptr)
@@ -127,7 +147,7 @@ void CS3dSpineDrawable::Draw()
 #ifdef SPINE_4_1_OR_LATER
 			spine::AtlasRegion* pAtlasRegion = static_cast<spine::AtlasRegion*>(pRegionAttachment->getRegion());
 
-			isAlphaPremultiplied = pAtlasRegion->page->pma;
+			m_isAlphaPremultiplied = pAtlasRegion->page->pma;
 			pTexture = reinterpret_cast<s3d::Texture*>(pAtlasRegion->page->texture);
 #else
 			spine::AtlasRegion* pAtlasRegion = static_cast<spine::AtlasRegion*>(pRegionAttachment->getRendererObject());
@@ -155,7 +175,7 @@ void CS3dSpineDrawable::Draw()
 #ifdef SPINE_4_1_OR_LATER
 			spine::AtlasRegion* pAtlasRegion = static_cast<spine::AtlasRegion*>(pMeshAttachment->getRegion());
 
-			isAlphaPremultiplied = pAtlasRegion->page->pma;
+			m_isAlphaPremultiplied = pAtlasRegion->page->pma;
 			pTexture = reinterpret_cast<s3d::Texture*>(pAtlasRegion->page->texture);
 #else
 			spine::AtlasRegion* pAtlasRegion = static_cast<spine::AtlasRegion*>(pMeshAttachment->getRendererObject());
@@ -208,9 +228,9 @@ void CS3dSpineDrawable::Draw()
 			s3dVertex.pos.x = (*pVertices)[ii];
 			s3dVertex.pos.y = (*pVertices)[ii + 1LL];
 
-			s3dVertex.color.x = tint.r * (isAlphaPremultiplied ? tint.a : 1.f);
-			s3dVertex.color.y = tint.g * (isAlphaPremultiplied ? tint.a : 1.f);
-			s3dVertex.color.z = tint.b * (isAlphaPremultiplied ? tint.a : 1.f);
+			s3dVertex.color.x = tint.r * (m_isAlphaPremultiplied ? tint.a : 1.f);
+			s3dVertex.color.y = tint.g * (m_isAlphaPremultiplied ? tint.a : 1.f);
+			s3dVertex.color.z = tint.b * (m_isAlphaPremultiplied ? tint.a : 1.f);
 			s3dVertex.color.w = tint.a;
 
 			s3dVertex.tex.x = (*pAttachmentUvs)[ii];
@@ -234,11 +254,11 @@ void CS3dSpineDrawable::Draw()
 		}
 
 		s3d::BlendState s3dBlendState;
-		spine::BlendMode spineBlendMode = isToForceBlendModeNormal ? spine::BlendMode::BlendMode_Normal : slot.getData().getBlendMode();
+		spine::BlendMode spineBlendMode = m_toForceBlendModeNormal ? spine::BlendMode::BlendMode_Normal : slot.getData().getBlendMode();
 		switch (spineBlendMode)
 		{
 		case spine::BlendMode_Additive:
-			s3dBlendState = isAlphaPremultiplied ? Siv3dSpineBlendMode::AddPma : Siv3dSpineBlendMode::Add;
+			s3dBlendState = m_isAlphaPremultiplied ? Siv3dSpineBlendMode::AddPma : Siv3dSpineBlendMode::Add;
 			break;
 		case spine::BlendMode_Multiply:
 			s3dBlendState = Siv3dSpineBlendMode::Multiply;
@@ -247,7 +267,7 @@ void CS3dSpineDrawable::Draw()
 			s3dBlendState = Siv3dSpineBlendMode::Screen;
 			break;
 		default:
-			s3dBlendState = isAlphaPremultiplied ? Siv3dSpineBlendMode::NormalPma : Siv3dSpineBlendMode::Normal;
+			s3dBlendState = m_isAlphaPremultiplied ? Siv3dSpineBlendMode::NormalPma : Siv3dSpineBlendMode::Normal;
 			break;
 		}
 
@@ -281,12 +301,12 @@ s3d::Vector4D<float> CS3dSpineDrawable::GetBoundingBox() const
 	return boundingBox;
 }
 
-s3d::Vector4D<float> CS3dSpineDrawable::GetBoundingBoxOfSlot(const char* slotName, size_t nameLength, bool* found) const
+s3d::Optional<s3d::Vector4D<float>> CS3dSpineDrawable::GetBoundingBoxOfSlot(const char* slotName, size_t nameLength) const
 {
-	float fMinX = FLT_MAX;
-	float fMinY = FLT_MAX;
-	float fMaxX = -FLT_MAX;
-	float fMaxY = -FLT_MAX;
+	float fMinX = s3d::Largest<float>;
+	float fMinY = s3d::Largest<float>;
+	float fMaxX = s3d::Smallest<float>;
+	float fMaxY = s3d::Smallest<float>;
 
 	if (skeleton != nullptr)
 	{
@@ -324,10 +344,10 @@ s3d::Vector4D<float> CS3dSpineDrawable::GetBoundingBoxOfSlot(const char* slotNam
 						continue;
 					}
 
-					for (size_t i = 0; i < tempVertices.size(); i += 2)
+					for (size_t ii = 0; ii < tempVertices.size(); ii += 2)
 					{
-						float fX = tempVertices[i];
-						float fY = tempVertices[i + 1LL];
+						float fX = tempVertices[ii];
+						float fY = tempVertices[ii + 1LL];
 
 						fMinX = s3d::Min(fMinX, fX);
 						fMinY = s3d::Min(fMinY, fY);
@@ -335,14 +355,13 @@ s3d::Vector4D<float> CS3dSpineDrawable::GetBoundingBoxOfSlot(const char* slotNam
 						fMaxY = s3d::Max(fMaxY, fY);
 					}
 
-					if (found != nullptr)*found = true;
-					break;
+					return s3d::Vector4D<float>{ fMinX, fMinY, fMaxX - fMinX, fMaxY - fMinY };
 				}
 			}
 		}
 	}
 
-	return s3d::Vector4D<float>{ fMinX, fMinY, fMaxX - fMinX, fMaxY - fMinY };
+	return s3d::none;
 }
 
 bool CS3dSpineDrawable::IsSlotToBeLeftOut(const spine::String& slotName)
@@ -359,12 +378,6 @@ void CS3dTextureLoader::load(spine::AtlasPage& atlasPage, const spine::String& p
 	}
 	s3d::Texture* pTexture = new (std::nothrow) s3d::Texture(filePath);
 
-	/* Do not overwrite the size of atlas page with that of texture because it will collapse uvs. */
-	//if (atlasPage.width == 0 || atlasPage.height == 0)
-	//{
-	//	atlasPage.width = pTexture->width();
-	//	atlasPage.height = pTexture->height();
-	//}
 #ifdef SPINE_4_1_OR_LATER
 	atlasPage.texture = pTexture;
 #else

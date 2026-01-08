@@ -319,7 +319,7 @@ void CSiv3dMainWindow::HandleKeyboardEvent()
 	}
 	else if (s3d::KeyB.up())
 	{
-		m_siv3dSpinePlayer.ToggleBlendModeAdoption();
+		m_siv3dSpinePlayer.ToggleBlendMode();
 	}
 	else if (s3d::KeyS.up())
 	{
@@ -403,7 +403,7 @@ void CSiv3dMainWindow::SpinePostRendering()
 		s3d::Vector4D<float> animationWatch{};
 		m_siv3dSpinePlayer.GetCurrentAnimationTime(&animationWatch.x, &animationWatch.y, &animationWatch.z, &animationWatch.w);
 		/* 一周し終わったら書き出し。 */
-		if (::isgreater(animationWatch.x, animationWatch.w))
+		if (s3d::GreaterThan(animationWatch.x, animationWatch.w))
 		{
 			s3d::FilePath filePath = BuildExportFilePath();
 			m_siv3dRecorder.End(filePath);
@@ -576,13 +576,13 @@ void CSiv3dMainWindow::ImGuiSpineParameterDialogue()
 			static ImGuiComboBox slotsComboBox;
 			slotsComboBox.Update(slotNames, "Slot##SlotBounding");
 			const auto& slotBounding = m_siv3dSpinePlayer.GetCurrentBoundingOfSlot(slotNames[slotsComboBox.selectedIndex]);
-			if (slotBounding.z == 0.f)
+			if (!slotBounding)
 			{
 				ImGui::TextColored(ImVec4{ 1.f, 0.f, 0.f, 1.f }, "Slot not found in this animation.");
 			}
 			else
 			{
-				ImGui::Text("Slot bounding: (%.2f, %.2f, %.2f, %.2f)", slotBounding.x, slotBounding.y, slotBounding.x + slotBounding.z, slotBounding.y + slotBounding.w);
+				ImGui::Text("Slot bounding: (%.2f, %.2f, %.2f, %.2f)", slotBounding->x, slotBounding->y, slotBounding->x + slotBounding->z, slotBounding->y + slotBounding->w);
 
 				static bool toDrawRect = false;
 				ImGui::Checkbox("Draw slot bounding", &toDrawRect);
@@ -598,7 +598,7 @@ void CSiv3dMainWindow::ImGuiSpineParameterDialogue()
 					ImGui::SameLine();
 					ImGui::ColorEdit4("Colour", (float*)&fRectangleColor, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_NoInputs);
 					{
-						const s3d::RectF rectF{ slotBounding.x, slotBounding.y, slotBounding.z, slotBounding.w };
+						const s3d::RectF rectF{ slotBounding->x, slotBounding->y, slotBounding->z, slotBounding->w };
 						const s3d::ColorF colour(fRectangleColor.x, fRectangleColor.y, fRectangleColor.z, fRectangleColor.w);
 						const s3d::Transformer2D t(m_siv3dSpinePlayer.CalculateTransformMatrix());
 						rectF.drawFrame(fThickness, colour);

@@ -1,14 +1,16 @@
 ﻿#ifndef SIV3D_SPINE_H_
 #define SIV3D_SPINE_H_
 
-/* Avoid conflict between <MathUtils.h> and <Windows.h> */
-#undef min
-#undef max
-#include <spine/spine.h>
-
-/* Avoid ambiguity between s3v::color and spine::color */
+/* "s3v::color"と"spine::color"の衝突を避ける。 */
 #define NO_S3D_USING
 #include <Siv3D.hpp>
+
+/* Spine 4.0 以前に於ける<MathUtils.h>と<Windows.h>内の衝突を避ける。 */
+#if SIV3D_PLATFORM(WINDOWS)
+#undef min
+#undef max
+#endif
+#include <spine/spine.h>
 
 class CS3dSpineDrawable
 {
@@ -19,21 +21,28 @@ public:
 	spine::Skeleton* skeleton = nullptr;
 	spine::AnimationState* animationState = nullptr;
 
-	/// @brief Whether alpha is premultiplied or not. For Spine 4.0 and later, this property is exported with atlas file,
-	///	       but for Spine 3.8, should be configured based on other means.
-	bool isAlphaPremultiplied = false;
-	bool isToForceBlendModeNormal = false;
+	/// @brief 乗算済みアルファ適用有無。Spine 3.8より古い場合のみ有効。4.0からはAtlasPageの同特性値を参照するため手動変更不可。
+	void PremultiplyAlpha(bool toBePremultiplied);
+	bool IsAlphaPremultiplied() const;
+
+	/// @brief スロットの指定する混色法を無視して通常混色を適用するか否か。
+	void ForceBlendModeNormal(bool toForce);
+	bool IsBlendModeNormalForced() const;
 
 	void Update(float fDelta);
 	void Draw();
 
-	/// @brief Set slots to be excluded from rendering
+	/// @brief 描画対象から除外するスロットを設定
 	void SetSlotsToLeaveOut(spine::Vector<spine::String>& slotNames);
 
+	/// @brief 全体の境界矩形を算出
 	s3d::Vector4D<float> GetBoundingBox() const;
-	s3d::Vector4D<float> GetBoundingBoxOfSlot(const char* slotName, size_t nameLength, bool* found = nullptr) const;
+	/// @brief 或るスロットの境界矩形を算出。
+	s3d::Optional<s3d::Vector4D<float>> GetBoundingBoxOfSlot(const char* slotName, size_t nameLength) const;
 private:
 	bool m_hasOwnAnimationStateData = false;
+	bool m_isAlphaPremultiplied = false;
+	bool m_toForceBlendModeNormal = false;
 
 	spine::Vector<float> m_worldVertices;
 
@@ -54,8 +63,8 @@ public:
 	CS3dTextureLoader() {};
 	virtual ~CS3dTextureLoader() {};
 
-	virtual void load(spine::AtlasPage& page, const spine::String& path);
-	virtual void unload(void* texture);
+	void load(spine::AtlasPage& page, const spine::String& path) override;
+	void unload(void* texture) override;
 };
 
 #endif // SIV3D_SPINE_H_

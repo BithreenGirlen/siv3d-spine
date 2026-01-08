@@ -42,18 +42,14 @@ s3d::Mat3x2 CSiv3dSpinePlayer::CalculateTransformMatrix() const
 	return s3d::Mat3x2::Scale(m_fSkeletonScale).translated(-fX, -fY);
 }
 
-s3d::Vector4D<float> CSiv3dSpinePlayer::GetCurrentBoundingOfSlot(const std::string& slotName) const
+s3d::Optional<s3d::Vector4D<float>> CSiv3dSpinePlayer::GetCurrentBoundingOfSlot(const std::string& slotName) const
 {
-	bool found = false;
 	for (const auto& drawable : m_drawables)
 	{
-		const auto& rect = drawable->GetBoundingBoxOfSlot(slotName.c_str(), slotName.size(), &found);
-		if (found)
-		{
-			return rect;
-		}
+		const auto& rect = drawable->GetBoundingBoxOfSlot(slotName.c_str(), slotName.size());
+		if (rect.has_value())return rect;
 	}
-	return {};
+	return s3d::none;
 }
 
 void CSiv3dSpinePlayer::WorkOutDefaultScale()
@@ -84,9 +80,8 @@ void CSiv3dSpinePlayer::WorkOutDefaultScale()
 
 void CSiv3dSpinePlayer::WorkOutDefaultOffset()
 {
-	/* s3d::Inf<float> とs3d::IsInfinityでは、外部ライブラリの書き込んだFLT_MAXを検知できない。*/
-	float fMinX = FLT_MAX;
-	float fMinY = FLT_MAX;
+	float fMinX = s3d::Largest<float>;
+	float fMinY = s3d::Largest<float>;
 
 	for (const auto& pDrawable : m_drawables)
 	{
@@ -95,5 +90,5 @@ void CSiv3dSpinePlayer::WorkOutDefaultOffset()
 		fMinY = s3d::Min(fMinY, rect.y);
 	}
 
-	m_fDefaultOffset = { fMinX == FLT_MAX ? 0 : fMinX, fMinY == FLT_MAX ? 0 : fMinY };
+	m_fDefaultOffset = { fMinX == s3d::Largest<float> ? 0 : fMinX, fMinY == s3d::Largest<float> ? 0 : fMinY };
 }

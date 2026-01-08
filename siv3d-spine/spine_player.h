@@ -29,7 +29,6 @@ public:
 	bool HasSpineBeenLoaded() const;
 
 	void Update(float fDelta);
-	virtual void Redraw() = 0;
 
 	void RescaleSkeleton(bool upscale);
 	void RescaleCanvas(bool upscale);
@@ -43,33 +42,32 @@ public:
 	void ShiftSkin();
 
 	void SetAnimationByIndex(size_t nIndex);
-	void SetAnimationByName(const char* szAnimationName);
+	void SetAnimationByName(const char* animationName);
 	void RestartAnimation(bool loop = true);
 
 	void SetSkinByIndex(size_t nIndex);
-	void SetSkinByName(const char* szSkinName);
+	void SetSkinByName(const char* skinName);
 	void SetupSkin();
 
 	/// @brief Toggle the state of all drawables
 	void TogglePma();
-	void ToggleBlendModeAdoption();
+	void ToggleBlendMode();
 
-	/// @return current state. If it were out of range, return false.
-	bool IsAlphaPremultiplied(size_t nDrawableIndex = 0);
-	bool IsBlendModeNormalForced(size_t nDrawableIndex = 0);
+	bool PremultiplyAlpha(bool toBePremultiplied, size_t nDrawableIndex = 0);
+	bool IsAlphaPremultiplied(size_t nDrawableIndex = 0) const;
+
+	bool ForceBlendModeNormal(bool toForce, size_t nDrawableIndex = 0);
+	bool IsBlendModeNormalForced(size_t nDrawableIndex = 0) const;
+
+	void SetDrawOrder(bool toBeReversed);
 	bool IsDrawOrderReversed() const;
 
-	/// @return false if it were out of range.
-	bool PremultiplyAlpha(bool isToBePremultiplied, size_t nDrawableIndex = 0);
-	bool ForceBlendModeNormal(bool isToForce, size_t nDrawableIndex = 0);
-	void SetDrawOrder(bool isToBeReversed);
-
 	const char* GetCurrentAnimationName();
-	/// @brief Get animation time actually entried in track.
-	/// @param fTrack elapsed time since the track was entried.
-	/// @param fLast current timeline position.
-	/// @param fStart timeline start position.
-	/// @param fEnd timeline end position.
+	/// @brief 現在再生されている動作の時間情報を取得
+	/// @param fTrack 再生が始まってからの総経過時間
+	/// @param fLast 再生区間に於ける、現在の再生位置
+	/// @param fStart 再生区間の開始位置
+	/// @param fEnd 再生区間の終了位置
 	void GetCurrentAnimationTime(float* fTrack, float* fLast, float* fStart, float* fEnd);
 
 	const std::vector<std::string>& GetSlotNames() const;
