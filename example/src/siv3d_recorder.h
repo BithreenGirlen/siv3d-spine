@@ -18,19 +18,19 @@ public:
 		Video,
 	};
 
-	bool Start(const s3d::Size &frameSize, EOutputType outputType, s3d::int32 fps = DefaultFps);
+	bool start(const s3d::Size &frameSize, EOutputType outputType, s3d::int32 fps = DefaultFps);
 
-	bool IsUnderRecording() const;
-	EOutputType GetOutputType() const;
-	s3d::int32 GetFps() const;
+	bool isUnderRecording() const;
+	EOutputType getOutputType() const;
+	s3d::int32 getFps() const;
 
-	bool HasTimePassed() const;
+	bool hasTimePassed() const;
 	/// @brief フレーム保存。
-	bool CommitFrame(const s3d::RenderTexture& frame);
-	bool HasFrames() const;
+	bool commitFrame(const s3d::RenderTexture& frame);
+	bool hasFrames() const;
 
 	/// @param filePath 出力先。拡張子がない場合出力形式に応じて自動付与。
-	bool End(s3d::FilePath& filePath);
+	bool end(s3d::FilePath& filePath);
 private:
 	static constexpr s3d::int32 DefaultFps = 30;
 
@@ -41,6 +41,6 @@ private:
 	s3d::Size m_frameSize{};
 	EOutputType m_outputType = EOutputType::Video;
 
-	void Clear();
+	void clear();
 };
 #endif // !SIV3d_RECORDER_H_

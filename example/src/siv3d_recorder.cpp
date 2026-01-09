@@ -13,12 +13,12 @@ CSiv3dRecorder::CSiv3dRecorder()
 
 CSiv3dRecorder::~CSiv3dRecorder()
 {
-	Clear();
+	clear();
 }
 
-bool CSiv3dRecorder::Start(const s3d::Size& frameSize, EOutputType outputType, s3d::int32 fps)
+bool CSiv3dRecorder::start(const s3d::Size& frameSize, EOutputType outputType, s3d::int32 fps)
 {
-	Clear();
+	clear();
 
 	m_outputType = outputType;
 	m_fps = fps;
@@ -29,33 +29,33 @@ bool CSiv3dRecorder::Start(const s3d::Size& frameSize, EOutputType outputType, s
 	return true;
 }
 
-bool CSiv3dRecorder::IsUnderRecording() const
+bool CSiv3dRecorder::isUnderRecording() const
 {
 	return m_lastTime.has_value();
 }
 
-CSiv3dRecorder::EOutputType CSiv3dRecorder::GetOutputType() const
+CSiv3dRecorder::EOutputType CSiv3dRecorder::getOutputType() const
 {
 	return m_outputType;
 }
 
-s3d::int32 CSiv3dRecorder::GetFps() const
+s3d::int32 CSiv3dRecorder::getFps() const
 {
 	return m_fps;
 }
 
-bool CSiv3dRecorder::HasTimePassed() const
+bool CSiv3dRecorder::hasTimePassed() const
 {
 	double currentTime = s3d::Scene::Time();
 	double elapsedTime = currentTime - m_lastTime.value();
 	double timeToWait = 1.0 / m_fps;
 
-	return ::isgreaterequal(elapsedTime, timeToWait);
+	return s3d::GreaterThanEqual(elapsedTime, timeToWait);
 }
 
-bool CSiv3dRecorder::CommitFrame(const s3d::RenderTexture& frame)
+bool CSiv3dRecorder::commitFrame(const s3d::RenderTexture& frame)
 {
-	if (IsUnderRecording())
+	if (isUnderRecording())
 	{
 		s3d::RenderTexture copiedFrame(m_frameSize);
 		s3d::Shader::Copy(frame, copiedFrame);
@@ -69,16 +69,16 @@ bool CSiv3dRecorder::CommitFrame(const s3d::RenderTexture& frame)
 	return false;
 }
 
-bool CSiv3dRecorder::HasFrames() const
+bool CSiv3dRecorder::hasFrames() const
 {
 	return !m_frames.empty();
 }
 
-bool CSiv3dRecorder::End(s3d::FilePath& filePath)
+bool CSiv3dRecorder::end(s3d::FilePath& filePath)
 {
 	if (filePath.empty())
 	{
-		Clear();
+		clear();
 		return false;
 	}
 	else
@@ -102,18 +102,18 @@ bool CSiv3dRecorder::End(s3d::FilePath& filePath)
 	{
 #if SIV3D_PLATFORM(WINDOWS)
 		CWicGifEncoder wicGifEncoder;
-		wicGifEncoder.Initialise(s3d::Unicode::ToWstring(filePath).c_str());
-		if (wicGifEncoder.HasBeenInitialised())
+		wicGifEncoder.initialise(s3d::Unicode::ToWstring(filePath).c_str());
+		if (wicGifEncoder.hasBeenInitialised())
 		{
 			float delay = static_cast<float>(1.0 / m_fps);
 			for (auto& frame : m_frames)
 			{
 				s3d::Image image;
 				frame.readAsImage(image);
-				result |= wicGifEncoder.CommitFrame(image.width(), image.height(), image.stride(), image.dataAsUint8(), true, delay);
+				result |= wicGifEncoder.commitFrame(image.width(), image.height(), image.stride(), image.dataAsUint8(), true, delay);
 				frame.release();
 			}
-			wicGifEncoder.Finalise();
+			wicGifEncoder.finalise();
 		}
 #else
 		s3d::AnimatedGIFWriter animatedGifWriter;
@@ -157,12 +157,12 @@ bool CSiv3dRecorder::End(s3d::FilePath& filePath)
 			videoWriter.close();
 		}
 	}
-	Clear();
+	clear();
 
 	return result;
 }
 
-void CSiv3dRecorder::Clear()
+void CSiv3dRecorder::clear()
 {
 	m_fps = DefaultFps;
 	m_lastTime.reset();

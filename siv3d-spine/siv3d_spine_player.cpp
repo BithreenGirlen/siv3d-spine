@@ -12,47 +12,47 @@ CSiv3dSpinePlayer::~CSiv3dSpinePlayer()
 
 }
 
-void CSiv3dSpinePlayer::Redraw()
+void CSiv3dSpinePlayer::redraw()
 {
 	if (!m_drawables.empty())
 	{
-		const s3d::Transformer2D t(CalculateTransformMatrix());
+		const s3d::Transformer2D t(calculateTransformMatrix());
 
 		if (!m_isDrawOrderReversed)
 		{
 			for (const auto& drawable : m_drawables)
 			{
-				drawable->Draw();
+				drawable->draw();
 			}
 		}
 		else
 		{
 			for (long long i = m_drawables.size() - 1; i >= 0; --i)
 			{
-				m_drawables[i]->Draw();
+				m_drawables[i]->draw();
 			}
 		}
 	}
 }
 
-s3d::Mat3x2 CSiv3dSpinePlayer::CalculateTransformMatrix() const
+s3d::Mat3x2 CSiv3dSpinePlayer::calculateTransformMatrix() const
 {
 	float fX = (m_fBaseSize.x * m_fSkeletonScale - m_sceneSize.x) / 2;
 	float fY = (m_fBaseSize.y * m_fSkeletonScale - m_sceneSize.y) / 2;
 	return s3d::Mat3x2::Scale(m_fSkeletonScale).translated(-fX, -fY);
 }
 
-s3d::Optional<s3d::Vector4D<float>> CSiv3dSpinePlayer::GetCurrentBoundingOfSlot(const std::string& slotName) const
+s3d::Optional<s3d::Vector4D<float>> CSiv3dSpinePlayer::getCurrentBoundingOfSlot(const std::string& slotName) const
 {
 	for (const auto& drawable : m_drawables)
 	{
-		const auto& rect = drawable->GetBoundingBoxOfSlot(slotName.c_str(), slotName.size());
+		const auto& rect = drawable->getBoundingBoxOfSlot(slotName.c_str(), slotName.size());
 		if (rect.has_value())return rect;
 	}
 	return s3d::none;
 }
 
-void CSiv3dSpinePlayer::WorkOutDefaultScale()
+void CSiv3dSpinePlayer::workOutDefaultScale()
 {
 	m_fDefaultScale = 1.f;
 
@@ -78,14 +78,14 @@ void CSiv3dSpinePlayer::WorkOutDefaultScale()
 	}
 }
 
-void CSiv3dSpinePlayer::WorkOutDefaultOffset()
+void CSiv3dSpinePlayer::workOutDefaultOffset()
 {
 	float fMinX = s3d::Largest<float>;
 	float fMinY = s3d::Largest<float>;
 
 	for (const auto& pDrawable : m_drawables)
 	{
-		const auto& rect = pDrawable->GetBoundingBox();
+		const auto& rect = pDrawable->getBoundingBox();
 		fMinX = s3d::Min(fMinX, rect.x);
 		fMinY = s3d::Min(fMinY, rect.y);
 	}

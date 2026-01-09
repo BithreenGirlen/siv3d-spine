@@ -9,5 +9,5 @@ void Main()
 
 	CSiv3dMainWindow mainWindow(U"Siv3D-Spine test");
 
-	mainWindow.Display();
+	mainWindow.display();
 }

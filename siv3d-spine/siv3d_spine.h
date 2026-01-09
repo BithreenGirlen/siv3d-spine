@@ -1,11 +1,11 @@
 ﻿#ifndef SIV3D_SPINE_H_
 #define SIV3D_SPINE_H_
 
-/* "s3v::color"と"spine::color"の衝突を避ける。 */
+/* "s3d::color"と"spine::color"の衝突を避ける。 */
 #define NO_S3D_USING
 #include <Siv3D.hpp>
 
-/* Spine 4.0 以前に於ける<MathUtils.h>と<Windows.h>内の衝突を避ける。 */
+/* Spine 4.0 以前に於ける<MathUtils.h>と<Windows.h>内の定義の衝突を避ける。 */
 #if SIV3D_PLATFORM(WINDOWS)
 #undef min
 #undef max
@@ -21,24 +21,24 @@ public:
 	spine::Skeleton* skeleton = nullptr;
 	spine::AnimationState* animationState = nullptr;
 
-	/// @brief 乗算済みアルファ適用有無。Spine 3.8より古い場合のみ有効。4.0からはAtlasPageの同特性値を参照するため手動変更不可。
-	void PremultiplyAlpha(bool toBePremultiplied);
-	bool IsAlphaPremultiplied() const;
+	/// @brief 乗算済みアルファ適用有無。Spine 3.8より古い場合のみ有効で、4.0からはAtlasPageの同値を参照するため手動変更不可
+	void premultiplyAlpha(bool toBePremultiplied);
+	bool isAlphaPremultiplied() const;
 
-	/// @brief スロットの指定する混色法を無視して通常混色を適用するか否か。
-	void ForceBlendModeNormal(bool toForce);
-	bool IsBlendModeNormalForced() const;
+	/// @brief スロット指定の混色法を無視して通常混色法を適用するか否か
+	void forceBlendModeNormal(bool toForce);
+	bool isBlendModeNormalForced() const;
 
-	void Update(float fDelta);
-	void Draw();
+	void update(float fDelta);
+	void draw();
 
 	/// @brief 描画対象から除外するスロットを設定
-	void SetSlotsToLeaveOut(spine::Vector<spine::String>& slotNames);
+	void setSlotsToLeaveOut(spine::Vector<spine::String>& slotNames);
 
 	/// @brief 全体の境界矩形を算出
-	s3d::Vector4D<float> GetBoundingBox() const;
-	/// @brief 或るスロットの境界矩形を算出。
-	s3d::Optional<s3d::Vector4D<float>> GetBoundingBoxOfSlot(const char* slotName, size_t nameLength) const;
+	s3d::Vector4D<float> getBoundingBox() const;
+	/// @brief スロットの境界矩形を算出
+	s3d::Optional<s3d::Vector4D<float>> getBoundingBoxOfSlot(const char* slotName, size_t nameLength) const;
 private:
 	bool m_hasOwnAnimationStateData = false;
 	bool m_isAlphaPremultiplied = false;

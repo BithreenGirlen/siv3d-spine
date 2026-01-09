@@ -7,13 +7,13 @@ public:
 	CWicGifEncoder();
 	~CWicGifEncoder();
 
-	bool Initialise(const wchar_t *filePath);
-	bool HasBeenInitialised() const;
+	bool initialise(const wchar_t* filePath);
+	bool hasBeenInitialised() const;
 
 	/// @brief フレーム書き込み。画素配列はRGBA32を想定。
-	bool CommitFrame(unsigned int width, unsigned int height, unsigned int stride, unsigned char* pixels, bool hasAlpha, float delayInSeconds);
+	bool commitFrame(unsigned int width, unsigned int height, unsigned int stride, unsigned char* pixels, bool hasAlpha, float delayInSeconds);
 
-	bool Finalise();
+	bool finalise();
 private:
 	class Impl;
 	Impl* m_impl = nullptr;

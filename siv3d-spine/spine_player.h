@@ -20,86 +20,83 @@ public:
 	CSpinePlayer();
 	virtual ~CSpinePlayer();
 
-	bool LoadSpineFromFile(const std::vector<std::string>& atlasPaths, const std::vector<std::string>& skelPaths, bool isBinarySkel);
-	bool LoadSpineFromMemory(const std::vector<std::string>& atlasData, const std::vector<std::string>& atlasPaths, const std::vector<std::string>& skelData, bool isBinarySkel);
+	bool loadSpineFromFile(const std::vector<std::string>& atlasPaths, const std::vector<std::string>& skelPaths, bool isBinarySkel);
+	bool loadSpineFromMemory(const std::vector<std::string>& atlasData, const std::vector<std::string>& atlasPaths, const std::vector<std::string>& skelData, bool isBinarySkel);
 
-	bool AddSpineFromFile(const char* szAtlasPath, const char* szSkelPath, bool isBinarySkel);
+	bool addSpineFromFile(const char* szAtlasPath, const char* szSkelPath, bool isBinarySkel);
 
-	size_t GetNumberOfSpines() const;
-	bool HasSpineBeenLoaded() const;
+	size_t getNumberOfSpines() const;
+	bool hasSpineBeenLoaded() const;
 
-	void Update(float fDelta);
+	void update(float fDelta);
 
-	void RescaleSkeleton(bool upscale);
-	void RescaleCanvas(bool upscale);
-	void RescaleTime(bool hasten);
+	/// @brief 速度・尺度・位置初期化
+	void resetScale();
 
-	void ResetScale();
+	/// @brief 尺度を考慮した位置座標の加減算
+	void addOffset(int iX, int iY);
 
-	void MoveViewPoint(int iX, int iY);
+	void shiftAnimation();
+	void shiftSkin();
 
-	void ShiftAnimation();
-	void ShiftSkin();
+	void setAnimationByIndex(size_t nIndex);
+	void setAnimationByName(const char* animationName);
+	void restartAnimation(bool loop = true);
 
-	void SetAnimationByIndex(size_t nIndex);
-	void SetAnimationByName(const char* animationName);
-	void RestartAnimation(bool loop = true);
-
-	void SetSkinByIndex(size_t nIndex);
-	void SetSkinByName(const char* skinName);
-	void SetupSkin();
+	void setSkinByIndex(size_t nIndex);
+	void setSkinByName(const char* skinName);
+	void setupSkin();
 
 	/// @brief Toggle the state of all drawables
-	void TogglePma();
-	void ToggleBlendMode();
+	void togglePma();
+	void toggleBlendMode();
 
-	bool PremultiplyAlpha(bool toBePremultiplied, size_t nDrawableIndex = 0);
-	bool IsAlphaPremultiplied(size_t nDrawableIndex = 0) const;
+	bool premultiplyAlpha(bool toBePremultiplied, size_t nDrawableIndex = 0);
+	bool isAlphaPremultiplied(size_t nDrawableIndex = 0) const;
 
-	bool ForceBlendModeNormal(bool toForce, size_t nDrawableIndex = 0);
-	bool IsBlendModeNormalForced(size_t nDrawableIndex = 0) const;
+	bool forceBlendModeNormal(bool toForce, size_t nDrawableIndex = 0);
+	bool isBlendModeNormalForced(size_t nDrawableIndex = 0) const;
 
-	void SetDrawOrder(bool toBeReversed);
-	bool IsDrawOrderReversed() const;
+	void setDrawOrder(bool toBeReversed);
+	bool isDrawOrderReversed() const;
 
-	const char* GetCurrentAnimationName();
+	const char* getCurrentAnimationName();
 	/// @brief 現在再生されている動作の時間情報を取得
 	/// @param fTrack 再生が始まってからの総経過時間
 	/// @param fLast 再生区間に於ける、現在の再生位置
 	/// @param fStart 再生区間の開始位置
 	/// @param fEnd 再生区間の終了位置
-	void GetCurrentAnimationTime(float* fTrack, float* fLast, float* fStart, float* fEnd);
+	void getCurrentAnimationTime(float* fTrack, float* fLast, float* fStart, float* fEnd);
 
-	const std::vector<std::string>& GetSlotNames() const;
-	const std::vector<std::string>& GetSkinNames() const;
-	const std::vector<std::string>& GetAnimationNames() const;
+	const std::vector<std::string>& getSlotNames() const;
+	const std::vector<std::string>& getSkinNames() const;
+	const std::vector<std::string>& getAnimationNames() const;
 
-	void SetSlotsToExclude(const std::vector<std::string>& slotNames);
-	void MixSkins(const std::vector<std::string>& skinNames);
-	void MixAnimations(const std::vector<std::string>& animationNamesm, bool loop = false);
+	void setSlotsToExclude(const std::vector<std::string>& slotNames);
+	void mixSkins(const std::vector<std::string>& skinNames);
+	void mixAnimations(const std::vector<std::string>& animationNames, bool loop = false);
 
-	/// @brief Searches slots having multiple attachments. If each slot is associated with only single attachment, returns empty.
-	/// @return slot name as key and attachment names as values.
-	std::unordered_map<std::string, std::vector<std::string>> GetSlotNamesWithTheirAttachments();
-	bool ReplaceAttachment(const char* szSlotName, const char* szAttachmentName);
+	/// @brief 複数の装着品候補のあるスロットを探索。
+	/// @return スロット名を見出し語、装着品名を値とした辞書。
+	std::unordered_map<std::string, std::vector<std::string>> getSlotNamesWithTheirAttachments();
+	/// @brief 現在の装着品を強制差し替え。
+	bool replaceAttachment(const char* szSlotName, const char* szAttachmentName);
 
-	FPoint2 GetBaseSize() const;
-	void SetBaseSize(float fWidth, float fHeight);
-	void ResetBaseSize();
+	FPoint2 getBaseSize() const;
+	void setBaseSize(float fWidth, float fHeight);
+	void resetBaseSize();
 
-	FPoint2 GetOffset() const;
+	FPoint2 getOffset() const;
 
-	float GetSkeletonScale() const;
-	void SetSkeletonScale(float fScale);
+	float getSkeletonScale() const;
+	void setSkeletonScale(float fScale);
 
-	float GetCanvasScale() const;
-	void SetCanvasScale(float fScale);
+	float getCanvasScale() const;
+	void setCanvasScale(float fScale);
 
-	float GetTimeScale() const;
-	void SetTimeScale(float fTimeScale);
+	float getTimeScale() const;
+	void setTimeScale(float fTimeScale);
 protected:
-	static constexpr float kfScalePortion = 0.025f;
-	static constexpr float kfMinScale = 0.15f;
 	enum Constants { kBaseWidth = 1280, kBaseHeight = 720, kMinAtlas = 1024 };
 
 	CTextureLoader m_textureLoader;
@@ -127,17 +124,17 @@ protected:
 
 	bool m_isDrawOrderReversed = false;
 
-	void ClearDrawables();
-	bool AddDrawable(spine::SkeletonData* const pSkeletonData);
-	bool SetupDrawables();
+	void clearDrawables();
+	bool addDrawable(spine::SkeletonData* const pSkeletonData);
+	bool setupDrawables();
 
-	void WorkOutDefaultSize();
-	virtual void WorkOutDefaultScale() = 0;
-	virtual void WorkOutDefaultOffset() = 0;
+	void workOutDefaultSize();
+	virtual void workOutDefaultScale() = 0;
+	virtual void workOutDefaultOffset() = 0;
 
-	void UpdatePosition();
+	void updatePosition();
 
-	void ClearAnimationTracks();
+	void clearAnimationTracks();
 };
 
 #endif // !SPINE_PLAYER_H_

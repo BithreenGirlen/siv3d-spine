@@ -11,7 +11,7 @@ public:
 	CSiv3dMainWindow(const char32_t *windowName = nullptr);
 	~CSiv3dMainWindow();
 
-	void Display();
+	void display();
 
 private:
 	CSiv3dWindowMenu m_siv3dWindowMenu;
@@ -27,31 +27,31 @@ private:
 	s3d::int32 m_imageFps = 30;
 	s3d::int32 m_videoFps = 60;
 
-	void InitialiseMenuBar();
+	void initialiseMenuBar();
 
-	void MenuOnOpenFile();
+	void menuOnOpenFile();
 
-	void MenuOnSnapImage();
-	void MenuOnExportAsGif();
-	void MenuOnExportAsVideo();
+	void menuOnSnapImage();
+	void menuOnExportAsGif();
+	void menuOnExportAsVideo();
 
-	void MenuOnHideSpineParameter();
-	void MenuOnShowHelp();
+	void menuOnHideSpineParameter();
+	void menuOnShowHelp();
 
-	void HandleMouseEvent();
-	void HandleKeyboardEvent();
+	void handleMouseEvent();
+	void handleKeyboardEvent();
 
-	void ResizeWindow();
-	void CheckRenderTextureSize();
-	void ToggleWindowBorderStyle();
+	void resizeWindow();
+	void checkRenderTextureSize();
+	void toggleWindowBorderStyle();
 
-	void SpinePostRendering();
+	void spinePostRendering();
 
-	s3d::FilePath BuildExportFilePath();
+	s3d::FilePath buildExportFilePath();
 
-	void SetEmbeddedFontForImgui() const;
-	void ImGuiSpineParameterDialogue();
-	void ImGuiHelpDialogue() const;
+	void setEmbeddedFontForImgui() const;
+	void imGuiSpineParameterDialogue();
+	void imGuiHelpDialogue() const;
 };
 
 #endif // !SIV3D_MAIN_WINDOW_H_

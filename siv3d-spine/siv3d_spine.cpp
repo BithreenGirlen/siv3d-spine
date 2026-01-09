@@ -55,27 +55,27 @@ CS3dSpineDrawable::~CS3dSpineDrawable()
 	}
 }
 
-void CS3dSpineDrawable::PremultiplyAlpha(bool toBePremultiplied)
+void CS3dSpineDrawable::premultiplyAlpha(bool toBePremultiplied)
 {
 	m_isAlphaPremultiplied = toBePremultiplied;
 }
 
-bool CS3dSpineDrawable::IsAlphaPremultiplied() const
+bool CS3dSpineDrawable::isAlphaPremultiplied() const
 {
 	return m_isAlphaPremultiplied;
 }
 
-void CS3dSpineDrawable::ForceBlendModeNormal(bool toForce)
+void CS3dSpineDrawable::forceBlendModeNormal(bool toForce)
 {
 	m_toForceBlendModeNormal = toForce;
 }
 
-bool CS3dSpineDrawable::IsBlendModeNormalForced() const
+bool CS3dSpineDrawable::isBlendModeNormalForced() const
 {
 	return m_toForceBlendModeNormal;
 }
 
-void CS3dSpineDrawable::Update(float fDelta)
+void CS3dSpineDrawable::update(float fDelta)
 {
 	if (skeleton != nullptr && animationState != nullptr)
 	{
@@ -93,7 +93,7 @@ void CS3dSpineDrawable::Update(float fDelta)
 	}
 }
 
-void CS3dSpineDrawable::Draw()
+void CS3dSpineDrawable::draw()
 {
 	if (skeleton == nullptr || animationState == nullptr)return;
 
@@ -152,7 +152,7 @@ void CS3dSpineDrawable::Draw()
 #else
 			spine::AtlasRegion* pAtlasRegion = static_cast<spine::AtlasRegion*>(pRegionAttachment->getRendererObject());
 #ifdef SPINE_4_0
-			isAlphaPremultiplied = pAtlasRegion->page->pma;
+			m_isAlphaPremultiplied = pAtlasRegion->page->pma;
 #endif
 			pTexture = reinterpret_cast<s3d::Texture*>(pAtlasRegion->page->getRendererObject());
 #endif
@@ -180,7 +180,7 @@ void CS3dSpineDrawable::Draw()
 #else
 			spine::AtlasRegion* pAtlasRegion = static_cast<spine::AtlasRegion*>(pMeshAttachment->getRendererObject());
 #ifdef SPINE_4_0
-			isAlphaPremultiplied = pAtlasRegion->page->pma;
+			m_isAlphaPremultiplied = pAtlasRegion->page->pma;
 #endif
 			pTexture = reinterpret_cast<s3d::Texture*>(pAtlasRegion->page->getRendererObject());
 #endif
@@ -283,12 +283,12 @@ void CS3dSpineDrawable::Draw()
 	m_skeletonClipping.clipEnd();
 }
 
-void CS3dSpineDrawable::SetSlotsToLeaveOut(spine::Vector<spine::String>& slotNames)
+void CS3dSpineDrawable::setSlotsToLeaveOut(spine::Vector<spine::String>& slotNames)
 {
 	m_slotsToLeaveOut.clearAndAddAll(slotNames);
 }
 
-s3d::Vector4D<float> CS3dSpineDrawable::GetBoundingBox() const
+s3d::Vector4D<float> CS3dSpineDrawable::getBoundingBox() const
 {
 	s3d::Vector4D<float> boundingBox{};
 
@@ -301,7 +301,7 @@ s3d::Vector4D<float> CS3dSpineDrawable::GetBoundingBox() const
 	return boundingBox;
 }
 
-s3d::Optional<s3d::Vector4D<float>> CS3dSpineDrawable::GetBoundingBoxOfSlot(const char* slotName, size_t nameLength) const
+s3d::Optional<s3d::Vector4D<float>> CS3dSpineDrawable::getBoundingBoxOfSlot(const char* slotName, size_t nameLength) const
 {
 	float fMinX = s3d::Largest<float>;
 	float fMinY = s3d::Largest<float>;

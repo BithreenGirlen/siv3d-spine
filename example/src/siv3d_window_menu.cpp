@@ -2,7 +2,7 @@
 
 #include "siv3d_window_menu.h"
 
-void CSiv3dWindowMenu::Initialise(
+void CSiv3dWindowMenu::initialise(
 	s3d::Array<std::pair<s3d::String, s3d::Array<s3d::String>>> menuItems,
 	s3d::Array<s3d::Array<ItemProprty>> menuItemProperties)
 {
@@ -10,27 +10,27 @@ void CSiv3dWindowMenu::Initialise(
 	m_menuItemProperties = menuItemProperties;
 	m_pMenuBar = std::make_unique<s3d::SimpleMenuBar>(m_menuItems);
 
-	UpdateRestrictiveItemState(false);
+	updateRestrictiveItemState(false);
 }
 
-bool CSiv3dWindowMenu::HasBeenInitialised() const
+bool CSiv3dWindowMenu::hasBeenInitialised() const
 {
-	return !m_menuItems.empty() && !m_menuItemProperties.empty() && m_pMenuBar.get() != nullptr;
+	return !m_menuItems.empty() && !m_menuItemProperties.empty() && m_pMenuBar != nullptr;
 }
 
-void CSiv3dWindowMenu::SetVisibility(bool isVisible)
+void CSiv3dWindowMenu::setVisibility(bool isVisible)
 {
 	m_isMenuBarVisible = isVisible;
 }
 
-bool CSiv3dWindowMenu::IsVisible() const
+bool CSiv3dWindowMenu::isVisible() const
 {
 	return m_isMenuBarVisible;
 }
 
-void CSiv3dWindowMenu::Update()
+void CSiv3dWindowMenu::update()
 {
-	if (m_pMenuBar.get() == nullptr)return;
+	if (m_pMenuBar == nullptr)return;
 
 	if (const auto& menuBarItem = m_pMenuBar->update())
 	{
@@ -55,34 +55,34 @@ void CSiv3dWindowMenu::Update()
 	}
 }
 
-void CSiv3dWindowMenu::Draw()
+void CSiv3dWindowMenu::draw()
 {
-	if (m_pMenuBar.get() != nullptr && m_isMenuBarVisible)
+	if (m_pMenuBar != nullptr && m_isMenuBarVisible)
 	{
 		m_pMenuBar->draw();
 	}
 }
 
-bool CSiv3dWindowMenu::GetLastItemChecked() const
+bool CSiv3dWindowMenu::getLastItemChecked() const
 {
-	if (m_pMenuBar.get() != nullptr)
+	if (m_pMenuBar != nullptr)
 	{
 		return m_pMenuBar->getItemChecked(m_lastItemIndex);
 	}
 	return false;
 }
 
-void CSiv3dWindowMenu::SetLastItemChecked(bool checked)
+void CSiv3dWindowMenu::setLastItemChecked(bool checked)
 {
-	if (m_pMenuBar.get() != nullptr)
+	if (m_pMenuBar != nullptr)
 	{
 		m_pMenuBar->setItemChecked(m_lastItemIndex, checked);
 	}
 }
 
-void CSiv3dWindowMenu::UpdateRestrictiveItemState(bool enabled)
+void CSiv3dWindowMenu::updateRestrictiveItemState(bool enabled)
 {
-	if (m_pMenuBar.get() != nullptr)
+	if (m_pMenuBar != nullptr)
 	{
 		for (size_t menuIndex = 0; menuIndex < m_menuItemProperties.size(); ++menuIndex)
 		{

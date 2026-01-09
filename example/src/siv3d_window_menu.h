@@ -19,21 +19,21 @@ public:
 		Restrictive isRestrictive = Restrictive::No;
 	};
 
-	void Initialise(
+	void initialise(
 		s3d::Array<std::pair<s3d::String, s3d::Array<s3d::String>>> menuItems,
 		s3d::Array<s3d::Array<ItemProprty>> menuItemProperties);
-	bool HasBeenInitialised() const;
+	bool hasBeenInitialised() const;
 
-	void SetVisibility(bool isVisible);
-	bool IsVisible()const;
+	void setVisibility(bool isVisible);
+	bool isVisible()const;
 
-	void Update();
-	void Draw();
+	void update();
+	void draw();
 
-	bool GetLastItemChecked() const;
-	void SetLastItemChecked(bool checked);
+	bool getLastItemChecked() const;
+	void setLastItemChecked(bool checked);
 	/// @brief Restrictive::Yes特性を有する項目の有効・無効切り替え
-	void UpdateRestrictiveItemState(bool enabled);
+	void updateRestrictiveItemState(bool enabled);
 private:
 	std::unique_ptr<s3d::SimpleMenuBar> m_pMenuBar;
 	s3d::Array<std::pair<s3d::String, s3d::Array<s3d::String>>> m_menuItems;

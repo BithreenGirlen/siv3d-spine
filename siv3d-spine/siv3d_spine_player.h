@@ -9,15 +9,15 @@ public:
 	CSiv3dSpinePlayer();
 	virtual ~CSiv3dSpinePlayer();
 
-	void Redraw();
+	void redraw();
 
-	void OnResize(const s3d::Size& size) { m_sceneSize = size; }
+	void onResize(const s3d::Size& size) { m_sceneSize = size; }
 
-	s3d::Mat3x2 CalculateTransformMatrix() const;
-	s3d::Optional<s3d::Vector4D<float>> GetCurrentBoundingOfSlot(const std::string& slotName) const;
+	s3d::Mat3x2 calculateTransformMatrix() const;
+	s3d::Optional<s3d::Vector4D<float>> getCurrentBoundingOfSlot(const std::string& slotName) const;
 private:
-	void WorkOutDefaultScale() override;
-	void WorkOutDefaultOffset() override;
+	void workOutDefaultScale() override;
+	void workOutDefaultOffset() override;
 
 	s3d::Size m_sceneSize;
 };

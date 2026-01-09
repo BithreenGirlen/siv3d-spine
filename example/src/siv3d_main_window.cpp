@@ -22,7 +22,7 @@ CSiv3dMainWindow::CSiv3dMainWindow(const char32_t* windowName)
 	s3d::Scene::SetResizeMode(s3d::ResizeMode::Actual);
 	s3d::Window::SetStyle(s3d::WindowStyle::Sizable);
 
-	InitialiseMenuBar();
+	initialiseMenuBar();
 }
 
 CSiv3dMainWindow::~CSiv3dMainWindow()
@@ -30,7 +30,7 @@ CSiv3dMainWindow::~CSiv3dMainWindow()
 
 }
 
-void CSiv3dMainWindow::Display()
+void CSiv3dMainWindow::display()
 {
 #if 0
 	s3d::Graphics::SetVSyncEnabled(false);
@@ -43,55 +43,55 @@ void CSiv3dMainWindow::Display()
 
 	ImGui_ImplSiv3d_Init();
 
-	SetEmbeddedFontForImgui();
+	setEmbeddedFontForImgui();
 
 	while (s3d::System::Update())
 	{
 		ImGui_ImplSiv3d_NewFrame();
 		ImGui::NewFrame();
 
-		m_siv3dWindowMenu.Update();
+		m_siv3dWindowMenu.update();
 
-		HandleMouseEvent();
-		HandleKeyboardEvent();
+		handleMouseEvent();
+		handleKeyboardEvent();
 
 		float fDelta = static_cast<float>(s3d::Scene::DeltaTime());
-		if (m_siv3dRecorder.IsUnderRecording())
+		if (m_siv3dRecorder.isUnderRecording())
 		{
-			fDelta = m_siv3dRecorder.HasFrames() ? 1.f / m_siv3dRecorder.GetFps() : 0.f;
+			fDelta = m_siv3dRecorder.hasFrames() ? 1.f / m_siv3dRecorder.getFps() : 0.f;
 		}
-		m_siv3dSpinePlayer.Update(fDelta);
+		m_siv3dSpinePlayer.update(fDelta);
 
-		s3d::int32 menuBarHeight = m_siv3dWindowMenu.IsVisible() ? s3d::SimpleMenuBar::MenuBarHeight : 0;
+		s3d::int32 menuBarHeight = m_siv3dWindowMenu.isVisible() ? s3d::SimpleMenuBar::MenuBarHeight : 0;
 		if (m_pSpinePlayerTexture.get() != nullptr)
 		{
 			m_pSpinePlayerTexture->clear(s3d::ColorF(0.f, 0.f));
 			{
 				const s3d::ScopedRenderTarget2D spinePlayerRenderTarget(*m_pSpinePlayerTexture.get());
-				m_siv3dSpinePlayer.Redraw();
+				m_siv3dSpinePlayer.redraw();
 			}
 
 			m_pSpinePlayerTexture->draw(0, menuBarHeight);
 
-			SpinePostRendering();
+			spinePostRendering();
 		}
 
-		ImGuiSpineParameterDialogue();
-		ImGuiHelpDialogue();
+		imGuiSpineParameterDialogue();
+		imGuiHelpDialogue();
 
 		ImGui::Render();
 		ImGui_ImplSiv3d_RenderDrawData();
 
 		/* 操作欄を最前面に。 */
-		m_siv3dWindowMenu.Draw();
+		m_siv3dWindowMenu.draw();
 	}
 
 	ImGui_ImplSiv3d_Shutdown();
 }
 
-void CSiv3dMainWindow::InitialiseMenuBar()
+void CSiv3dMainWindow::initialiseMenuBar()
 {
-	if (!m_siv3dWindowMenu.HasBeenInitialised())
+	if (!m_siv3dWindowMenu.hasBeenInitialised())
 	{
 		const s3d::Array<std::pair<s3d::String, s3d::Array<s3d::String>>> menuItems
 		{
@@ -103,40 +103,40 @@ void CSiv3dMainWindow::InitialiseMenuBar()
 		const s3d::Array<s3d::Array<CSiv3dWindowMenu::ItemProprty>> menuItemProperties
 		{
 			{
-				{ std::bind(&CSiv3dMainWindow::MenuOnOpenFile, this), CSiv3dWindowMenu::Restrictive::No }
+				{ std::bind(&CSiv3dMainWindow::menuOnOpenFile, this), CSiv3dWindowMenu::Restrictive::No }
 			},
 			{
-				{ std::bind(&CSiv3dMainWindow::MenuOnSnapImage, this), CSiv3dWindowMenu::Restrictive::Yes },
-				{ std::bind(&CSiv3dMainWindow::MenuOnExportAsGif, this), CSiv3dWindowMenu::Restrictive::Yes },
-				{ std::bind(&CSiv3dMainWindow::MenuOnExportAsVideo, this), CSiv3dWindowMenu::Restrictive::Yes }
+				{ std::bind(&CSiv3dMainWindow::menuOnSnapImage, this), CSiv3dWindowMenu::Restrictive::Yes },
+				{ std::bind(&CSiv3dMainWindow::menuOnExportAsGif, this), CSiv3dWindowMenu::Restrictive::Yes },
+				{ std::bind(&CSiv3dMainWindow::menuOnExportAsVideo, this), CSiv3dWindowMenu::Restrictive::Yes }
 			},
 			{
-				{ std::bind(&CSiv3dMainWindow::MenuOnHideSpineParameter, this), CSiv3dWindowMenu::Restrictive::Yes },
-				{ std::bind(&CSiv3dMainWindow::MenuOnShowHelp, this), CSiv3dWindowMenu::Restrictive::No },
+				{ std::bind(&CSiv3dMainWindow::menuOnHideSpineParameter, this), CSiv3dWindowMenu::Restrictive::Yes },
+				{ std::bind(&CSiv3dMainWindow::menuOnShowHelp, this), CSiv3dWindowMenu::Restrictive::No },
 				{ [this] /* 手動変更された現在の表示範囲に合わせる */
 					{
 						if (m_pSpinePlayerTexture.get() == nullptr) return;
 
 						const s3d::Size targetSize = m_pSpinePlayerTexture->size();
-						const float fSkeletonScale = m_siv3dSpinePlayer.GetSkeletonScale();
+						const float fSkeletonScale = m_siv3dSpinePlayer.getSkeletonScale();
 						s3d::Vector2D<float> baseSize = targetSize / fSkeletonScale;
 
-						m_siv3dSpinePlayer.SetBaseSize(baseSize.x, baseSize.y);
-						ResizeWindow();
+						m_siv3dSpinePlayer.setBaseSize(baseSize.x, baseSize.y);
+						resizeWindow();
 					}, CSiv3dWindowMenu::Restrictive::Yes},
 				{ [this] /* 既定の表示範囲に戻す */
 					{
-						m_siv3dSpinePlayer.ResetBaseSize();
-						ResizeWindow();
+						m_siv3dSpinePlayer.resetBaseSize();
+						resizeWindow();
 					}, CSiv3dWindowMenu::Restrictive::Yes},
 			}
 		};
 
-		m_siv3dWindowMenu.Initialise(menuItems, menuItemProperties);
+		m_siv3dWindowMenu.initialise(menuItems, menuItemProperties);
 	}
 }
 
-void CSiv3dMainWindow::MenuOnOpenFile()
+void CSiv3dMainWindow::menuOnOpenFile()
 {
 	const s3d::Array<s3d::String> atlasCandidates = { U"atlas" , U"atlas.txt" };
 	auto selectedAtlas = s3d::Dialog::OpenFile({ { U"Atlas file", { atlasCandidates } }, { U"All files", { U"*" } } }, U"", U"Select atlas");
@@ -164,27 +164,27 @@ void CSiv3dMainWindow::MenuOnOpenFile()
 	atlasPaths.push_back(s3d::Unicode::ToUTF8(selectedAtlas.value()));
 	skelPaths.push_back(s3d::Unicode::ToUTF8(selectedSkeleton.value()));
 
-	m_siv3dSpinePlayer.LoadSpineFromFile(atlasPaths, skelPaths, isBinarySkel);
+	m_siv3dSpinePlayer.loadSpineFromFile(atlasPaths, skelPaths, isBinarySkel);
 
-	m_siv3dWindowMenu.UpdateRestrictiveItemState(m_siv3dSpinePlayer.HasSpineBeenLoaded());
-	if (m_siv3dSpinePlayer.HasSpineBeenLoaded())
+	m_siv3dWindowMenu.updateRestrictiveItemState(m_siv3dSpinePlayer.hasSpineBeenLoaded());
+	if (m_siv3dSpinePlayer.hasSpineBeenLoaded())
 	{
 		s3d::Window::SetTitle(s3d::FileSystem::BaseName(selectedAtlas.value()));
 	}
-	ResizeWindow();
+	resizeWindow();
 }
 
-void CSiv3dMainWindow::MenuOnSnapImage()
+void CSiv3dMainWindow::menuOnSnapImage()
 {
 	if (m_pSpinePlayerTexture.get() != nullptr)
 	{
 		s3d::Image image;
 		m_pSpinePlayerTexture->readAsImage(image);
 
-		s3d::FilePath filePath = BuildExportFilePath();
+		s3d::FilePath filePath = buildExportFilePath();
 		{
 			s3d::Vector4D<float> animationWatch{};
-			m_siv3dSpinePlayer.GetCurrentAnimationTime(&animationWatch.x, &animationWatch.y, &animationWatch.z, &animationWatch.w);
+			m_siv3dSpinePlayer.getCurrentAnimationTime(&animationWatch.x, &animationWatch.y, &animationWatch.z, &animationWatch.w);
 
 			using namespace s3d;
 			const auto& formatted = U"_{:.2f}"_fmt(animationWatch.y);
@@ -196,39 +196,41 @@ void CSiv3dMainWindow::MenuOnSnapImage()
 	}
 }
 
-void CSiv3dMainWindow::MenuOnExportAsGif()
+void CSiv3dMainWindow::menuOnExportAsGif()
 {
 	if (m_pSpinePlayerTexture.get() != nullptr)
 	{
-		m_siv3dSpinePlayer.RestartAnimation();
-		m_siv3dRecorder.Start(s3d::Size(m_pSpinePlayerTexture->width(), m_pSpinePlayerTexture->height()), CSiv3dRecorder::EOutputType::Gif, m_imageFps);
+		m_siv3dSpinePlayer.setTimeScale(1.f);
+		m_siv3dSpinePlayer.restartAnimation();
+		m_siv3dRecorder.start(s3d::Size(m_pSpinePlayerTexture->width(), m_pSpinePlayerTexture->height()), CSiv3dRecorder::EOutputType::Gif, m_imageFps);
 	}
 }
 
-void CSiv3dMainWindow::MenuOnExportAsVideo()
+void CSiv3dMainWindow::menuOnExportAsVideo()
 {
 	if (m_pSpinePlayerTexture.get() != nullptr)
 	{
-		m_siv3dSpinePlayer.RestartAnimation();
-		m_siv3dRecorder.Start(s3d::Size(m_pSpinePlayerTexture->width(), m_pSpinePlayerTexture->height()), CSiv3dRecorder::EOutputType::Video, m_videoFps);
+		m_siv3dSpinePlayer.setTimeScale(1.f);
+		m_siv3dSpinePlayer.restartAnimation();
+		m_siv3dRecorder.start(s3d::Size(m_pSpinePlayerTexture->width(), m_pSpinePlayerTexture->height()), CSiv3dRecorder::EOutputType::Video, m_videoFps);
 	}
 }
 
-void CSiv3dMainWindow::MenuOnHideSpineParameter()
+void CSiv3dMainWindow::menuOnHideSpineParameter()
 {
 	m_isSpineParameterHidden ^= true;
-	m_siv3dWindowMenu.SetLastItemChecked(m_isSpineParameterHidden);
+	m_siv3dWindowMenu.setLastItemChecked(m_isSpineParameterHidden);
 }
 
-void CSiv3dMainWindow::MenuOnShowHelp()
+void CSiv3dMainWindow::menuOnShowHelp()
 {
 	m_isHelpDialogueShown ^= true;
-	m_siv3dWindowMenu.SetLastItemChecked(m_isHelpDialogueShown);
+	m_siv3dWindowMenu.setLastItemChecked(m_isHelpDialogueShown);
 }
 /* マウス入力処理 */
-void CSiv3dMainWindow::HandleMouseEvent()
+void CSiv3dMainWindow::handleMouseEvent()
 {
-	if (m_siv3dRecorder.IsUnderRecording())return;
+	if (m_siv3dRecorder.isUnderRecording())return;
 
 	const auto& io = ImGui::GetIO();
 	if (io.WantCaptureMouse)return;
@@ -250,7 +252,7 @@ void CSiv3dMainWindow::HandleMouseEvent()
 			{
 				/* 視点移動 */
 				s3d::Point mouseDelta = s3d::Cursor::Delta();
-				m_siv3dSpinePlayer.MoveViewPoint(-mouseDelta.x, -mouseDelta.y);
+				m_siv3dSpinePlayer.addOffset(-mouseDelta.x, -mouseDelta.y);
 			}
 
 		}
@@ -259,50 +261,66 @@ void CSiv3dMainWindow::HandleMouseEvent()
 	{
 		if (s3d::MouseR.pressed())
 		{
-			m_siv3dSpinePlayer.ShiftAnimation();
+			m_siv3dSpinePlayer.shiftAnimation();
 		}
 		else
 		{
-			CheckRenderTextureSize();
+			checkRenderTextureSize();
 		}
 	}
 	else if (s3d::MouseM.up())
 	{
 		if (s3d::MouseR.pressed())
 		{
-			ToggleWindowBorderStyle();
+			toggleWindowBorderStyle();
 		}
 		else
 		{
 			/* 視点・速度・尺度初期化 */
-			m_siv3dSpinePlayer.ResetScale();
-			ResizeWindow();
+			m_siv3dSpinePlayer.resetScale();
+			resizeWindow();
 		}
 	}
 
 	if (s3d::Mouse::Wheel())
 	{
+		const float scrollSign = (s3d::Mouse::Wheel() > 0 ? 1.f : -1.f);
 		if (s3d::MouseL.pressed())
 		{
 			/* 加減速 */
-			m_siv3dSpinePlayer.RescaleTime(s3d::Mouse::Wheel() > 0);
+
+			static constexpr float TimeScaleDelta = 0.05f;
+
+			float timeScale = m_siv3dSpinePlayer.getTimeScale() + TimeScaleDelta * scrollSign;
+			timeScale = s3d::Max(timeScale, 0.f);
+			m_siv3dSpinePlayer.setTimeScale(timeScale);
 		}
 		else if (!s3d::MouseR.pressed())
 		{
 			/* 拡縮 */
-			m_siv3dSpinePlayer.RescaleSkeleton(s3d::Mouse::Wheel() > 0);
+
+			static constexpr float ScaleDelta = 0.025f;
+			static constexpr float MinScale = 0.15f;
+
+			float skeletonScale = m_siv3dSpinePlayer.getSkeletonScale() + ScaleDelta * scrollSign;
+			skeletonScale = s3d::Max(MinScale, skeletonScale);
+			m_siv3dSpinePlayer.setSkeletonScale(skeletonScale);
+
 			if (!s3d::KeyLControl.pressed())
 			{
-				m_siv3dSpinePlayer.RescaleCanvas(s3d::Mouse::Wheel() > 0);
-				ResizeWindow();
+				float canvasScale = m_siv3dSpinePlayer.getCanvasScale() + ScaleDelta * scrollSign;
+				canvasScale = s3d::Max(MinScale, canvasScale);
+				m_siv3dSpinePlayer.setCanvasScale(canvasScale);
+
+				resizeWindow();
 			}
 		}
 	}
 }
 /* キーボード入力処理 */
-void CSiv3dMainWindow::HandleKeyboardEvent()
+void CSiv3dMainWindow::handleKeyboardEvent()
 {
-	if (m_siv3dRecorder.IsUnderRecording())return;
+	if (m_siv3dRecorder.isUnderRecording())return;
 
 	const auto& io = ImGui::GetIO();
 	if (io.WantCaptureKeyboard)return;
@@ -310,35 +328,35 @@ void CSiv3dMainWindow::HandleKeyboardEvent()
 	if (s3d::KeyM.up())
 	{
 		/* メニュー消去・表示。 */
-		m_siv3dWindowMenu.SetVisibility(!m_siv3dWindowMenu.IsVisible());
-		ResizeWindow();
+		m_siv3dWindowMenu.setVisibility(!m_siv3dWindowMenu.isVisible());
+		resizeWindow();
 	}
 	else if (s3d::KeyA.up())
 	{
-		m_siv3dSpinePlayer.TogglePma();
+		m_siv3dSpinePlayer.togglePma();
 	}
 	else if (s3d::KeyB.up())
 	{
-		m_siv3dSpinePlayer.ToggleBlendMode();
+		m_siv3dSpinePlayer.toggleBlendMode();
 	}
 	else if (s3d::KeyS.up())
 	{
-		m_siv3dSpinePlayer.ShiftSkin();
+		m_siv3dSpinePlayer.shiftSkin();
 	}
 }
 /* 窓寸法変更 */
-void CSiv3dMainWindow::ResizeWindow()
+void CSiv3dMainWindow::resizeWindow()
 {
-	if (!m_siv3dSpinePlayer.HasSpineBeenLoaded() || m_siv3dRecorder.IsUnderRecording())return;
+	if (!m_siv3dSpinePlayer.hasSpineBeenLoaded() || m_siv3dRecorder.isUnderRecording())return;
 
-	s3d::Vector2D<float> fCanvasSize = m_siv3dSpinePlayer.GetBaseSize();
-	float fScale = m_siv3dSpinePlayer.GetCanvasScale();
+	s3d::Vector2D<float> fCanvasSize = m_siv3dSpinePlayer.getBaseSize();
+	float fScale = m_siv3dSpinePlayer.getCanvasScale();
 
 	s3d::int32 iClientWidth = static_cast<s3d::int32>(fCanvasSize.x * fScale);
 	s3d::int32 iClientHeight = static_cast<s3d::int32>(fCanvasSize.y * fScale);
 
 	/* メニュー表示時はクライアント領域を高さ分大きく取り、且つ、他の描画対象物の描画開始位置を高さ分下げる。*/
-	s3d::int32 menuBarHeight = m_siv3dWindowMenu.IsVisible() ? s3d::SimpleMenuBar::MenuBarHeight : 0;
+	s3d::int32 menuBarHeight = m_siv3dWindowMenu.isVisible() ? s3d::SimpleMenuBar::MenuBarHeight : 0;
 
 	/* 書き出しファイルの寸法を解像度内に抑えるため上限を設ける。 */
 	const auto monitorInfo = s3d::System::GetCurrentMonitor();
@@ -347,14 +365,14 @@ void CSiv3dMainWindow::ResizeWindow()
 
 	s3d::Window::ResizeActual(iClientWidth, iClientHeight + menuBarHeight, s3d::YesNo<s3d::Centering_tag>::No);
 
-	CheckRenderTextureSize();
+	checkRenderTextureSize();
 }
 /* Spine描画先紋理要再作成確認 */
-void CSiv3dMainWindow::CheckRenderTextureSize()
+void CSiv3dMainWindow::checkRenderTextureSize()
 {
-	if (!m_siv3dSpinePlayer.HasSpineBeenLoaded()) return;
+	if (!m_siv3dSpinePlayer.hasSpineBeenLoaded()) return;
 
-	s3d::int32 menuBarHeight = m_siv3dWindowMenu.IsVisible() ? s3d::SimpleMenuBar::MenuBarHeight : 0;
+	s3d::int32 menuBarHeight = m_siv3dWindowMenu.isVisible() ? s3d::SimpleMenuBar::MenuBarHeight : 0;
 	const auto ToBeRecreated = [this, &menuBarHeight]()
 		-> bool
 		{
@@ -377,11 +395,11 @@ void CSiv3dMainWindow::CheckRenderTextureSize()
 
 		m_pSpinePlayerTexture = std::make_unique<s3d::RenderTexture>(textureSize);
 		/* s3d::Graphics2D::GetRenderTargetSize()呼び出しを避ける。 */
-		m_siv3dSpinePlayer.OnResize(textureSize);
+		m_siv3dSpinePlayer.onResize(textureSize);
 	}
 }
 /* 窓枠表示・消去 */
-void CSiv3dMainWindow::ToggleWindowBorderStyle()
+void CSiv3dMainWindow::toggleWindowBorderStyle()
 {
 	if (s3d::Window::GetStyle() != s3d::WindowStyle::Frameless)
 	{
@@ -396,40 +414,40 @@ void CSiv3dMainWindow::ToggleWindowBorderStyle()
 	}
 }
 /* Spine描画後処理 */
-void CSiv3dMainWindow::SpinePostRendering()
+void CSiv3dMainWindow::spinePostRendering()
 {
-	if (m_siv3dRecorder.IsUnderRecording())
+	if (m_siv3dRecorder.isUnderRecording())
 	{
 		s3d::Vector4D<float> animationWatch{};
-		m_siv3dSpinePlayer.GetCurrentAnimationTime(&animationWatch.x, &animationWatch.y, &animationWatch.z, &animationWatch.w);
+		m_siv3dSpinePlayer.getCurrentAnimationTime(&animationWatch.x, &animationWatch.y, &animationWatch.z, &animationWatch.w);
 		/* 一周し終わったら書き出し。 */
 		if (s3d::GreaterThan(animationWatch.x, animationWatch.w))
 		{
-			s3d::FilePath filePath = BuildExportFilePath();
-			m_siv3dRecorder.End(filePath);
+			s3d::FilePath filePath = buildExportFilePath();
+			m_siv3dRecorder.end(filePath);
 		}
 		else
 		{
 			s3d::Graphics2D::Flush();
-			m_siv3dRecorder.CommitFrame(*m_pSpinePlayerTexture.get());
+			m_siv3dRecorder.commitFrame(*m_pSpinePlayerTexture.get());
 		}
 	}
 }
 
-s3d::FilePath CSiv3dMainWindow::BuildExportFilePath()
+s3d::FilePath CSiv3dMainWindow::buildExportFilePath()
 {
 	const s3d::FilePath& moduleDirectory = s3d::FileSystem::ParentPath(s3d::FileSystem::ModulePath());
 	const s3d::FilePath& saveFolderPath = moduleDirectory + s3d::Window::GetTitle() + U'/';
 	/* s3d::BinaryWriter does create non-existent directory, but cv::VideoWriter not. */
 	s3d::FileSystem::CreateDirectories(saveFolderPath);
 
-	const char* pzAnimationName = m_siv3dSpinePlayer.GetCurrentAnimationName();
+	const char* pzAnimationName = m_siv3dSpinePlayer.getCurrentAnimationName();
 	s3d::String fileName = pzAnimationName == nullptr ? U"" : s3d::Unicode::FromUTF8(pzAnimationName);
 
 	return saveFolderPath + fileName;
 }
 /* ImGui用書体設定 */
-void CSiv3dMainWindow::SetEmbeddedFontForImgui() const
+void CSiv3dMainWindow::setEmbeddedFontForImgui() const
 {
 	ImGuiIO& io = ImGui::GetIO();
 	const auto& fontAtlas = io.Fonts;
@@ -446,9 +464,9 @@ void CSiv3dMainWindow::SetEmbeddedFontForImgui() const
 #endif
 }
 
-void CSiv3dMainWindow::ImGuiSpineParameterDialogue()
+void CSiv3dMainWindow::imGuiSpineParameterDialogue()
 {
-	if (!m_siv3dSpinePlayer.HasSpineBeenLoaded())return;
+	if (!m_siv3dSpinePlayer.hasSpineBeenLoaded())return;
 
 	if (m_isSpineParameterHidden)return;
 
@@ -460,7 +478,7 @@ void CSiv3dMainWindow::ImGuiSpineParameterDialogue()
 	{
 		unsigned int selectedIndex = 0;
 
-		void Update(const std::vector<std::string>& itemNames, const char* comboLabel)
+		void update(const std::vector<std::string>& itemNames, const char* comboLabel)
 		{
 			if (selectedIndex >= itemNames.size())
 			{
@@ -490,7 +508,7 @@ void CSiv3dMainWindow::ImGuiSpineParameterDialogue()
 		s3d::Array<bool> checks;
 		ImGuiMultiSelectFlags flags = ImGuiMultiSelectFlags_NoAutoSelect | ImGuiMultiSelectFlags_NoAutoClear | ImGuiMultiSelectFlags_ClearOnEscape;
 
-		void Update(const std::vector<std::string>& itemNames, const char* windowLabel)
+		void update(const std::vector<std::string>& itemNames, const char* windowLabel)
 		{
 			if (checks.size() != itemNames.size())
 			{
@@ -562,20 +580,20 @@ void CSiv3dMainWindow::ImGuiSpineParameterDialogue()
 			ImGui::Text("Texture size: (%d, %d)", textureSize.x, textureSize.y);
 		}
 
-		s3d::Vector2D<float> baseSize = m_siv3dSpinePlayer.GetBaseSize();
-		s3d::Vector2D<float> offset = m_siv3dSpinePlayer.GetOffset();
+		s3d::Vector2D<float> baseSize = m_siv3dSpinePlayer.getBaseSize();
+		s3d::Vector2D<float> offset = m_siv3dSpinePlayer.getOffset();
 
 		ImGui::Text("Skeleton size: (%.2f, %.2f)", baseSize.x, baseSize.y);
 		ImGui::Text("Offset: (%.2f, %.2f)", offset.x, offset.y);
-		ImGui::Text("Skeleton scale: %.2f", m_siv3dSpinePlayer.GetSkeletonScale());
-		ImGui::Text("Canvas scale: %.2f", m_siv3dSpinePlayer.GetCanvasScale());
+		ImGui::Text("Skeleton scale: %.2f", m_siv3dSpinePlayer.getSkeletonScale());
+		ImGui::Text("Canvas scale: %.2f", m_siv3dSpinePlayer.getCanvasScale());
 
 		if (ImGui::TreeNode("Slot bounding"))
 		{
-			const std::vector<std::string>& slotNames = m_siv3dSpinePlayer.GetSlotNames();
+			const std::vector<std::string>& slotNames = m_siv3dSpinePlayer.getSlotNames();
 			static ImGuiComboBox slotsComboBox;
-			slotsComboBox.Update(slotNames, "Slot##SlotBounding");
-			const auto& slotBounding = m_siv3dSpinePlayer.GetCurrentBoundingOfSlot(slotNames[slotsComboBox.selectedIndex]);
+			slotsComboBox.update(slotNames, "Slot##SlotBounding");
+			const auto& slotBounding = m_siv3dSpinePlayer.getCurrentBoundingOfSlot(slotNames[slotsComboBox.selectedIndex]);
 			if (!slotBounding)
 			{
 				ImGui::TextColored(ImVec4{ 1.f, 0.f, 0.f, 1.f }, "Slot not found in this animation.");
@@ -600,7 +618,7 @@ void CSiv3dMainWindow::ImGuiSpineParameterDialogue()
 					{
 						const s3d::RectF rectF{ slotBounding->x, slotBounding->y, slotBounding->z, slotBounding->w };
 						const s3d::ColorF colour(fRectangleColor.x, fRectangleColor.y, fRectangleColor.z, fRectangleColor.w);
-						const s3d::Transformer2D t(m_siv3dSpinePlayer.CalculateTransformMatrix());
+						const s3d::Transformer2D t(m_siv3dSpinePlayer.calculateTransformMatrix());
 						rectF.drawFrame(fThickness, colour);
 					}
 				}
@@ -613,23 +631,23 @@ void CSiv3dMainWindow::ImGuiSpineParameterDialogue()
 	/* 動作名・動作指定・動作合成 */
 	if (ImGui::CollapsingHeader("Animation"))
 	{
-		const char* pzAnimationName = m_siv3dSpinePlayer.GetCurrentAnimationName();
+		const char* pzAnimationName = m_siv3dSpinePlayer.getCurrentAnimationName();
 		s3d::Vector4D<float> animationWatch{};
-		m_siv3dSpinePlayer.GetCurrentAnimationTime(&animationWatch.x, &animationWatch.y, &animationWatch.z, &animationWatch.w);
+		m_siv3dSpinePlayer.getCurrentAnimationTime(&animationWatch.x, &animationWatch.y, &animationWatch.z, &animationWatch.w);
 
 		ImGui::SliderFloat(pzAnimationName, &animationWatch.y, animationWatch.z, animationWatch.w, "%0.2f");
-		ImGui::Text("Time scale: %.2f", m_siv3dSpinePlayer.GetTimeScale());
+		ImGui::Text("Time scale: %.2f", m_siv3dSpinePlayer.getTimeScale());
 
-		const std::vector<std::string>& animationNames = m_siv3dSpinePlayer.GetAnimationNames();
+		const std::vector<std::string>& animationNames = m_siv3dSpinePlayer.getAnimationNames();
 		/* 動作指定 */
 		if (ImGui::TreeNode("Set animation"))
 		{
 			static ImGuiComboBox animationComboBox;
-			animationComboBox.Update(animationNames, "##AnimationToSet");
+			animationComboBox.update(animationNames, "##AnimationToSet");
 
 			if (ImGui::Button("Apply##SetAnimation"))
 			{
-				m_siv3dSpinePlayer.SetAnimationByIndex(animationComboBox.selectedIndex);
+				m_siv3dSpinePlayer.setAnimationByIndex(animationComboBox.selectedIndex);
 			}
 
 			ImGui::TreePop();
@@ -641,13 +659,13 @@ void CSiv3dMainWindow::ImGuiSpineParameterDialogue()
 			ImGui::BulletText("Make sure there be no conflict as for attachments.");
 
 			static ImGuiListview animationsListView;
-			animationsListView.Update(animationNames, "Animation to mix##AnimationsToMix");
+			animationsListView.update(animationNames, "Animation to mix##AnimationsToMix");
 
 			if (ImGui::Button("Apply##MixAnimations"))
 			{
 				std::vector<std::string> checkedItems;
 				animationsListView.PickupCheckedItems(animationNames, checkedItems);
-				m_siv3dSpinePlayer.MixAnimations(checkedItems);
+				m_siv3dSpinePlayer.mixAnimations(checkedItems);
 			}
 
 			ImGui::TreePop();
@@ -657,16 +675,16 @@ void CSiv3dMainWindow::ImGuiSpineParameterDialogue()
 	/* 装い指定・合成 */
 	if (ImGui::CollapsingHeader("Skin"))
 	{
-		const std::vector<std::string>& skinNames = m_siv3dSpinePlayer.GetSkinNames();
+		const std::vector<std::string>& skinNames = m_siv3dSpinePlayer.getSkinNames();
 		/* 装い指定 */
 		if (ImGui::TreeNode("Set Skin"))
 		{
 			static ImGuiComboBox skinComboBox;
-			skinComboBox.Update(skinNames, "##SkinToSet");
+			skinComboBox.update(skinNames, "##SkinToSet");
 
 			if (ImGui::Button("Apply##SetSkin"))
 			{
-				m_siv3dSpinePlayer.SetSkinByIndex(skinComboBox.selectedIndex);
+				m_siv3dSpinePlayer.setSkinByIndex(skinComboBox.selectedIndex);
 			}
 
 			ImGui::TreePop();
@@ -677,13 +695,13 @@ void CSiv3dMainWindow::ImGuiSpineParameterDialogue()
 			ImGui::BulletText("Caution: Mixing skins will overwrite animation state.");
 
 			static ImGuiListview skinListView;
-			skinListView.Update(skinNames, "Skins to mix##SkinsToMix");
+			skinListView.update(skinNames, "Skins to mix##SkinsToMix");
 
 			if (ImGui::Button("Apply##MixSkins"))
 			{
 				std::vector<std::string> checkedItems;
 				skinListView.PickupCheckedItems(skinNames, checkedItems);
-				m_siv3dSpinePlayer.MixSkins(checkedItems);
+				m_siv3dSpinePlayer.mixSkins(checkedItems);
 			}
 			ImGui::TreePop();
 		}
@@ -692,20 +710,20 @@ void CSiv3dMainWindow::ImGuiSpineParameterDialogue()
 	/* 槽溝 */
 	if (ImGui::CollapsingHeader("Slot"))
 	{
-		const std::vector<std::string>& slotNames = m_siv3dSpinePlayer.GetSlotNames();
+		const std::vector<std::string>& slotNames = m_siv3dSpinePlayer.getSlotNames();
 		/* 描画対象から除外 */
 		if (ImGui::TreeNode("Exclude slot"))
 		{
 			ImGui::BulletText("Checked attachments will be excluded from rendering.\n");
 
 			static ImGuiListview slotListView;
-			slotListView.Update(slotNames, "Slots to exclude##SlotsToExclude");
+			slotListView.update(slotNames, "Slots to exclude##SlotsToExclude");
 
 			if (ImGui::Button("Apply##ExcludeSlots"))
 			{
 				std::vector<std::string> checkedItems;
 				slotListView.PickupCheckedItems(slotNames, checkedItems);
-				m_siv3dSpinePlayer.SetSlotsToExclude(checkedItems);
+				m_siv3dSpinePlayer.setSlotsToExclude(checkedItems);
 			}
 
 			ImGui::TreePop();
@@ -718,7 +736,7 @@ void CSiv3dMainWindow::ImGuiSpineParameterDialogue()
 			ImGui::BulletText("Even if it is permitted to replace slot,\n it does not guarantee consistency in timeline.");
 
 			/* 滅多に利用機会がないので、非効率なのは承知でこのまま。 */
-			const auto& slotAttachmentMap = m_siv3dSpinePlayer.GetSlotNamesWithTheirAttachments();
+			const auto& slotAttachmentMap = m_siv3dSpinePlayer.getSlotNamesWithTheirAttachments();
 			if (!slotAttachmentMap.empty())
 			{
 				std::vector<std::string> slotCandidates;
@@ -729,17 +747,17 @@ void CSiv3dMainWindow::ImGuiSpineParameterDialogue()
 				}
 
 				static ImGuiComboBox slotsComboBox;
-				slotsComboBox.Update(slotCandidates, "Slot##SlotCandidates");
+				slotsComboBox.update(slotCandidates, "Slot##SlotCandidates");
 
 				const auto& iter = slotAttachmentMap.find(slotCandidates[slotsComboBox.selectedIndex]);
 				if (iter != slotAttachmentMap.cend())
 				{
 					static ImGuiComboBox attachmentComboBox;
-					attachmentComboBox.Update(iter->second, "Attachment##AssociatesAttachments");
+					attachmentComboBox.update(iter->second, "Attachment##AssociatesAttachments");
 
 					if (ImGui::Button("Apply##ReplaceAttachment"))
 					{
-						m_siv3dSpinePlayer.ReplaceAttachment(
+						m_siv3dSpinePlayer.replaceAttachment(
 							slotCandidates[slotsComboBox.selectedIndex].c_str(),
 							iter->second[attachmentComboBox.selectedIndex].c_str()
 						);
@@ -757,24 +775,24 @@ void CSiv3dMainWindow::ImGuiSpineParameterDialogue()
 		ImGui::BulletText("For Spine 3.8 and older, PMA should be configured by user hand.");
 		ImGui::BulletText("For Spine 4.0 and later, PMA property of atlas page is applied.");
 #if !defined(SPINE_4_0) && !defined(SPINE_4_1_OR_LATER) && !defined(SPINE_4_2_OR_LATER)
-		bool pma = m_siv3dSpinePlayer.IsAlphaPremultiplied();
+		bool pma = m_siv3dSpinePlayer.isAlphaPremultiplied();
 		ImGui::Checkbox("Alpha premultiplied", &pma);
-		m_siv3dSpinePlayer.PremultiplyAlpha(pma);
+		m_siv3dSpinePlayer.premultiplyAlpha(pma);
 #endif
 		ImGui::SeparatorText("Blend-mode");
 
 		ImGui::BulletText("Blend-mode-multiply will not be represented intentionally\n if alpha were not premultiplied when exported.");
-		bool toForceBlendModeNormal = m_siv3dSpinePlayer.IsBlendModeNormalForced();
+		bool toForceBlendModeNormal = m_siv3dSpinePlayer.isBlendModeNormalForced();
 		ImGui::Checkbox("To force blend-mode-normal", &toForceBlendModeNormal);
-		m_siv3dSpinePlayer.ForceBlendModeNormal(toForceBlendModeNormal);
+		m_siv3dSpinePlayer.forceBlendModeNormal(toForceBlendModeNormal);
 
-		if (m_siv3dSpinePlayer.GetNumberOfSpines() > 1)
+		if (m_siv3dSpinePlayer.getNumberOfSpines() > 1)
 		{
 			ImGui::SeparatorText("Draw order");
 
-			bool drawOrder = m_siv3dSpinePlayer.IsDrawOrderReversed();
+			bool drawOrder = m_siv3dSpinePlayer.isDrawOrderReversed();
 			ImGui::Checkbox("Reverse draw order", &drawOrder);
-			m_siv3dSpinePlayer.SetDrawOrder(drawOrder);
+			m_siv3dSpinePlayer.setDrawOrder(drawOrder);
 		}
 
 		if (ImGui::TreeNode("Export FPS"))
@@ -806,7 +824,7 @@ void CSiv3dMainWindow::ImGuiSpineParameterDialogue()
 	ImGui::End();
 }
 
-void CSiv3dMainWindow::ImGuiHelpDialogue() const
+void CSiv3dMainWindow::imGuiHelpDialogue() const
 {
 	if (!m_isHelpDialogueShown)return;
 
