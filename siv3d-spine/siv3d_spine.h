@@ -15,11 +15,11 @@
 class CS3dSpineDrawable
 {
 public:
-	CS3dSpineDrawable(spine::SkeletonData* pSkeletonData, spine::AnimationStateData* pAnimationStateData = nullptr);
+	CS3dSpineDrawable(spine::SkeletonData* pSkeletonData);
 	~CS3dSpineDrawable();
 
-	spine::Skeleton* skeleton = nullptr;
-	spine::AnimationState* animationState = nullptr;
+	spine::Skeleton* skeleton() const;
+	spine::AnimationState* animationState() const;
 
 	/// @brief 乗算済みアルファ適用有無。Spine 3.8より古い場合のみ有効で、4.0からはAtlasPageの同値を参照するため手動変更不可
 	void premultiplyAlpha(bool toBePremultiplied);
@@ -40,9 +40,11 @@ public:
 	/// @brief スロットの境界矩形を算出
 	s3d::Optional<s3d::Vector4D<float>> getBoundingBoxOfSlot(const char* slotName, size_t nameLength) const;
 private:
-	bool m_hasOwnAnimationStateData = false;
 	bool m_isAlphaPremultiplied = false;
 	bool m_toForceBlendModeNormal = false;
+
+	spine::Skeleton* m_skeleton = nullptr;
+	spine::AnimationState* m_animationState = nullptr;
 
 	spine::Vector<float> m_worldVertices;
 

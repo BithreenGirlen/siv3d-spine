@@ -19,6 +19,9 @@ private:
 	CSiv3dSpinePlayer m_siv3dSpinePlayer;
 	/// @brief Spine描画先
 	std::unique_ptr<s3d::RenderTexture> m_pSpinePlayerTexture;
+	float m_spineCanvasScale = 1.f;
+
+	bool m_isAutoWindowResizingDisabled = false;
 
 	bool m_isSpineParameterHidden = false;
 	bool m_isHelpDialogueShown = false;

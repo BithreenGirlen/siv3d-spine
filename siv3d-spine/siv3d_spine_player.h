@@ -11,15 +11,11 @@ public:
 
 	void redraw();
 
-	void onResize(const s3d::Size& size) { m_sceneSize = size; }
-
-	s3d::Mat3x2 calculateTransformMatrix() const;
+	s3d::Mat3x2 calculateTransformMatrix(s3d::Size renderTargetSize = s3d::Graphics2D::GetRenderTargetSize()) const;
 	s3d::Optional<s3d::Vector4D<float>> getCurrentBoundingOfSlot(const std::string& slotName) const;
 private:
 	void workOutDefaultScale() override;
 	void workOutDefaultOffset() override;
-
-	s3d::Size m_sceneSize;
 };
 
 #endif // !SIV3D_SPINE_PLAYER_H_

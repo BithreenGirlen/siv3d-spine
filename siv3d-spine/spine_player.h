@@ -47,10 +47,6 @@ public:
 	void setSkinByName(const char* skinName);
 	void setupSkin();
 
-	/// @brief Toggle the state of all drawables
-	void togglePma();
-	void toggleBlendMode();
-
 	bool premultiplyAlpha(bool toBePremultiplied, size_t nDrawableIndex = 0);
 	bool isAlphaPremultiplied(size_t nDrawableIndex = 0) const;
 
@@ -87,12 +83,10 @@ public:
 	void resetBaseSize();
 
 	FPoint2 getOffset() const;
+	void setOffset(float fWidth, float fHeight);
 
 	float getSkeletonScale() const;
 	void setSkeletonScale(float fScale);
-
-	float getCanvasScale() const;
-	void setCanvasScale(float fScale);
 
 	float getTimeScale() const;
 	void setTimeScale(float fTimeScale);
@@ -111,7 +105,6 @@ protected:
 
 	float m_fTimeScale = 1.f;
 	float m_fSkeletonScale = 1.f;
-	float m_fCanvasScale = 1.f;
 	FPoint2 m_fOffset{};
 
 	std::vector<std::string> m_animationNames;

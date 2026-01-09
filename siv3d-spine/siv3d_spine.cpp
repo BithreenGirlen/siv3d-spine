@@ -17,18 +17,13 @@ namespace spine
 	}
 }
 
-CS3dSpineDrawable::CS3dSpineDrawable(spine::SkeletonData* pSkeletonData, spine::AnimationStateData* pAnimationStateData)
+CS3dSpineDrawable::CS3dSpineDrawable(spine::SkeletonData* pSkeletonData)
 {
 	spine::Bone::setYDown(true);
 
-	skeleton = new spine::Skeleton(pSkeletonData);
-
-	if (pAnimationStateData == nullptr)
-	{
-		pAnimationStateData = new spine::AnimationStateData(pSkeletonData);
-		m_hasOwnAnimationStateData = true;
-	}
-	animationState = new spine::AnimationState(pAnimationStateData);
+	m_skeleton = new spine::Skeleton(pSkeletonData);
+	spine::AnimationStateData* pAnimationStateData = new spine::AnimationStateData(pSkeletonData);
+	m_animationState = new spine::AnimationState(pAnimationStateData);
 
 	m_quadIndices.add(0);
 	m_quadIndices.add(1);
@@ -40,19 +35,27 @@ CS3dSpineDrawable::CS3dSpineDrawable(spine::SkeletonData* pSkeletonData, spine::
 
 CS3dSpineDrawable::~CS3dSpineDrawable()
 {
-	if (animationState != nullptr)
+	if (m_animationState != nullptr)
 	{
-		if (m_hasOwnAnimationStateData)
-		{
-			delete animationState->getData();
-		}
+		spine::AnimationStateData* pAnimationStateData = m_animationState->getData();
+		delete pAnimationStateData;
 
-		delete animationState;
+		delete m_animationState;
 	}
-	if (skeleton != nullptr)
+	if (m_skeleton != nullptr)
 	{
-		delete skeleton;
+		delete m_skeleton;
 	}
+}
+
+spine::Skeleton* CS3dSpineDrawable::skeleton() const
+{
+	return m_skeleton;
+}
+
+spine::AnimationState* CS3dSpineDrawable::animationState() const
+{
+	return m_animationState;
 }
 
 void CS3dSpineDrawable::premultiplyAlpha(bool toBePremultiplied)
@@ -77,31 +80,31 @@ bool CS3dSpineDrawable::isBlendModeNormalForced() const
 
 void CS3dSpineDrawable::update(float fDelta)
 {
-	if (skeleton != nullptr && animationState != nullptr)
+	if (m_skeleton != nullptr && m_animationState != nullptr)
 	{
 #ifndef SPINE_4_1_OR_LATER
-		skeleton->update(fDelta);
+		m_skeleton->update(fDelta);
 #endif
-		animationState->update(fDelta);
-		animationState->apply(*skeleton);
+		m_animationState->update(fDelta);
+		m_animationState->apply(*m_skeleton);
 #ifdef SPINE_4_2_OR_LATER
-		skeleton->update(fDelta);
-		skeleton->updateWorldTransform(spine::Physics::Physics_Update);
+		m_skeleton->update(fDelta);
+		m_skeleton->updateWorldTransform(spine::Physics::Physics_Update);
 #else
-		skeleton->updateWorldTransform();
+		m_skeleton->updateWorldTransform();
 #endif
 	}
 }
 
 void CS3dSpineDrawable::draw()
 {
-	if (skeleton == nullptr || animationState == nullptr)return;
+	if (m_skeleton == nullptr || m_animationState == nullptr)return;
 
-	if (skeleton->getColor().a == 0)return;
+	if (m_skeleton->getColor().a == 0)return;
 
-	for (size_t i = 0; i < skeleton->getSlots().size(); ++i)
+	for (size_t i = 0; i < m_skeleton->getSlots().size(); ++i)
 	{
-		spine::Slot& slot = *skeleton->getDrawOrder()[i];
+		spine::Slot& slot = *m_skeleton->getDrawOrder()[i];
 		spine::Attachment* pAttachment = slot.getAttachment();
 
 		if (pAttachment == nullptr || slot.getColor().a == 0 || !slot.getBone().isActive())
@@ -210,7 +213,7 @@ void CS3dSpineDrawable::draw()
 			pIndices = &m_skeletonClipping.getClippedTriangles();
 		}
 
-		const spine::Color& skeletonColor = skeleton->getColor();
+		const spine::Color& skeletonColor = m_skeleton->getColor();
 		const spine::Color& slotColor = slot.getColor();
 		const spine::Color tint
 		(
@@ -292,10 +295,10 @@ s3d::Vector4D<float> CS3dSpineDrawable::getBoundingBox() const
 {
 	s3d::Vector4D<float> boundingBox{};
 
-	if (skeleton != nullptr)
+	if (m_skeleton != nullptr)
 	{
 		spine::Vector<float> tempVertices;
-		skeleton->getBounds(boundingBox.x, boundingBox.y, boundingBox.z, boundingBox.w, tempVertices);
+		m_skeleton->getBounds(boundingBox.x, boundingBox.y, boundingBox.z, boundingBox.w, tempVertices);
 	}
 
 	return boundingBox;
@@ -308,11 +311,11 @@ s3d::Optional<s3d::Vector4D<float>> CS3dSpineDrawable::getBoundingBoxOfSlot(cons
 	float fMaxX = s3d::Smallest<float>;
 	float fMaxY = s3d::Smallest<float>;
 
-	if (skeleton != nullptr)
+	if (m_skeleton != nullptr)
 	{
-		for (size_t i = 0; i < skeleton->getSlots().size(); ++i)
+		for (size_t i = 0; i < m_skeleton->getSlots().size(); ++i)
 		{
-			spine::Slot& slot = *skeleton->getDrawOrder()[i];
+			spine::Slot& slot = *m_skeleton->getDrawOrder()[i];
 			const spine::String& slotDataName = slot.getData().getName();
 			if (nameLength != slotDataName.length())continue;
 

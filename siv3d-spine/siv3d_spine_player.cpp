@@ -16,8 +16,6 @@ void CSiv3dSpinePlayer::redraw()
 {
 	if (!m_drawables.empty())
 	{
-		const s3d::Transformer2D t(calculateTransformMatrix());
-
 		if (!m_isDrawOrderReversed)
 		{
 			for (const auto& drawable : m_drawables)
@@ -35,10 +33,10 @@ void CSiv3dSpinePlayer::redraw()
 	}
 }
 
-s3d::Mat3x2 CSiv3dSpinePlayer::calculateTransformMatrix() const
+s3d::Mat3x2 CSiv3dSpinePlayer::calculateTransformMatrix(s3d::Size renderTargetSize) const
 {
-	float fX = (m_fBaseSize.x * m_fSkeletonScale - m_sceneSize.x) / 2;
-	float fY = (m_fBaseSize.y * m_fSkeletonScale - m_sceneSize.y) / 2;
+	float fX = (m_fBaseSize.x * m_fSkeletonScale - renderTargetSize.x) / 2;
+	float fY = (m_fBaseSize.y * m_fSkeletonScale - renderTargetSize.y) / 2;
 	return s3d::Mat3x2::Scale(m_fSkeletonScale).translated(-fX, -fY);
 }
 
