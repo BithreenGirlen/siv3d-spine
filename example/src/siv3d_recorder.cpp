@@ -2,8 +2,8 @@
 #include "siv3d_recorder.h"
 
 #if SIV3D_PLATFORM(WINDOWS)
-	#include "windows/wic_gif_encoder.h" /* s3d::AnimatedGIFWriterでは透過GIFが点滅するため。 */
-	#include "windows/mf_video_encoder.h" /* s3d::VideoWriterではビットレートが過剰なため。 */
+	#include "windows/wic_gif_encoder.h"
+	#include "windows/mf_video_encoder.h"
 #endif
 
 
@@ -150,18 +150,24 @@ bool CSiv3dRecorder::end(s3d::FilePath& filePath)
 	{
 #if SIV3D_PLATFORM(WINDOWS)
 		CMfVideoEncoder mfVideoEncorder;
+		/* 省電力系AMD製CPUでは幅・高さは4の倍数長でないと書き出しDLL内でハングする。 */
+		bool toBeTruncated = s3d::GetCPUInfo().vendor.contains(U"AMD");
+		if (toBeTruncated)
+		{
+			m_frameSize.x &= 0xfffffffc;
+			m_frameSize.y &= 0xfffffffc;
+		}
+
 		mfVideoEncorder.initialise(s3d::Unicode::ToWstring(filePath).c_str(), m_frameSize.x, m_frameSize.y, m_fps);
 		if (mfVideoEncorder.hasBeenInitialised())
 		{
-			/* AMD製CPUでは縦幅・横幅は4の倍数長でないと書き出しDLL内でハングする。 */
-			bool toBeTruncated = s3d::GetCPUInfo().vendor.contains(U"AMD");
 			for (auto& frame : m_frames)
 			{
 				s3d::Image image;
 				frame.readAsImage(image);
 				if (toBeTruncated)
 				{
-					image.resize(image.width() & 0xfffffffc, image.height() & 0xfffffffc);
+					image = image.clipped({}, { image.width() & 0xfffffffc, image.height() & 0xfffffffc });
 				}
 
 				const s3d::uint32 pixelSize = static_cast<s3d::uint32>(image.stride() * image.height());

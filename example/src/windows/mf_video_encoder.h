@@ -8,7 +8,7 @@ public:
 	~CMfVideoEncoder();
 
 	/// @brief ストリーム初期化
-	/// @remark AMD製CPU(5800U等)では縦幅・横幅をそれぞれ4の倍数長にしておかないと、初期化や書き込みには成功しても
+	/// @remark 省電力系AMD製CPU(5800U等)では幅と高さを4の倍数長にしておかないと、初期化やフレーム書き込みには成功しても
 	///			"IMFSinkWriter::Finalize()"がラップしているDLL内部でハングするので予め切り捨てておくこと。
 	bool initialise(const wchar_t* filePath, unsigned int width, unsigned int height, unsigned int frameRate);
 	bool hasBeenInitialised() const;
