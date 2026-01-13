@@ -28,10 +28,10 @@
     <Filter Include="Source File\siv3d-imgui\imgui-1.92.0">
       <UniqueIdentifier>{5bf70c52-c3ee-4b44-bd1e-7565b5157bd0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header File\wic">
+    <Filter Include="Header File\windows">
       <UniqueIdentifier>{07ea5cf7-fa28-481f-8807-3d99555e617f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source File\wic">
+    <Filter Include="Source File\windows">
       <UniqueIdentifier>{8b73e0ee-c4d2-435f-99b3-54d2fb1548af}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source File\siv3d-spine\spine-cpp-4.1">
@@ -81,8 +81,8 @@
     <ClCompile Include="deps\imgui-1.92.0\imgui_widgets.cpp">
       <Filter>Source File\siv3d-imgui\imgui-1.92.0</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\wic\wic_gif_encoder.cpp">
-      <Filter>Source File\wic</Filter>
+    <ClCompile Include="..\src\windows\wic_gif_encoder.cpp">
+      <Filter>Source File\windows</Filter>
     </ClCompile>
     <ClCompile Include="deps\spine-cpp-4.1\src\spine\Animation.cpp">
       <Filter>Source File\siv3d-spine\spine-cpp-4.1</Filter>
@@ -273,6 +273,9 @@
     <ClCompile Include="..\src\imgui\siv3d_imgui.cpp">
       <Filter>Source File\siv3d-imgui</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\windows\mf_video_encoder.cpp">
+      <Filter>Source File\windows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="App\Resource.rc">
@@ -292,8 +295,8 @@
     <ClInclude Include="..\src\siv3d_recorder.h">
       <Filter>Header File</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\wic\wic_gif_encoder.h">
-      <Filter>Header File\wic</Filter>
+    <ClInclude Include="..\src\windows\wic_gif_encoder.h">
+      <Filter>Header File\windows</Filter>
     </ClInclude>
     <ClInclude Include="..\..\siv3d-spine\siv3d_spine.h">
       <Filter>Header File\siv3d-spine</Filter>
@@ -312,6 +315,9 @@
     </ClInclude>
     <ClInclude Include="..\src\imgui\siv3d_imgui.h">
       <Filter>Header File\siv3d-imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\windows\mf_video_encoder.h">
+      <Filter>Header File\windows</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

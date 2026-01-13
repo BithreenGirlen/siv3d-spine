@@ -442,15 +442,12 @@ void CSiv3dMainWindow::spinePostRendering()
 
 s3d::FilePath CSiv3dMainWindow::buildExportFilePath()
 {
-	const s3d::FilePath& moduleDirectory = s3d::FileSystem::ParentPath(s3d::FileSystem::ModulePath());
-	const s3d::FilePath& saveFolderPath = moduleDirectory + s3d::Window::GetTitle() + U'/';
-	/* s3d::BinaryWriter does create non-existent directory, but cv::VideoWriter not. */
-	s3d::FileSystem::CreateDirectories(saveFolderPath);
+	const s3d::FilePath& saveFolderPath = s3d::FileSystem::PathAppend(s3d::FileSystem::ParentPath(s3d::FileSystem::ModulePath()), s3d::Window::GetTitle());
 
 	const char* pzAnimationName = m_siv3dSpinePlayer.getCurrentAnimationName();
-	s3d::String fileName = pzAnimationName == nullptr ? U"" : s3d::Unicode::FromUTF8(pzAnimationName);
+	const s3d::String& fileName = pzAnimationName == nullptr ? U"" : s3d::Unicode::FromUTF8(pzAnimationName);
 
-	return saveFolderPath + fileName;
+	return s3d::FileSystem::PathAppend(saveFolderPath, fileName);
 }
 /* ImGui用書体設定 */
 void CSiv3dMainWindow::setEmbeddedFontForImgui() const
@@ -890,11 +887,11 @@ void CSiv3dMainWindow::imGuiHelpDialogue() const
 
 	ImGui::SeparatorText("Mouse functions:");
 	ImGui::Indent();
-	for (size_t i = 0; i < sizeof(mouseHelps) / sizeof(mouseHelps[0]); ++i)
+	for (const auto& mouseHelp : mouseHelps)
 	{
-		ImGui::BulletText(mouseHelps[i][MouseHelp::Input]);
+		ImGui::BulletText(mouseHelp[MouseHelp::Input]);
 		ImGui::SameLine(inputTextWidth * 2.f);
-		ImGui::Text(": %s", mouseHelps[i][MouseHelp::Description]);
+		ImGui::Text(": %s", mouseHelp[MouseHelp::Description]);
 	}
 	ImGui::Unindent();
 

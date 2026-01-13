@@ -164,7 +164,8 @@
     <ClCompile Include="..\src\siv3d_recorder.cpp" />
     <ClCompile Include="..\src\siv3d_main_window.cpp" />
     <ClCompile Include="..\src\siv3d_window_menu.cpp" />
-    <ClCompile Include="..\src\wic\wic_gif_encoder.cpp" />
+    <ClCompile Include="..\src\windows\mf_video_encoder.cpp" />
+    <ClCompile Include="..\src\windows\wic_gif_encoder.cpp" />
     <ClCompile Include="deps\imgui-1.92.0\imgui.cpp" />
     <ClCompile Include="deps\imgui-1.92.0\imgui_demo.cpp" />
     <ClCompile Include="deps\imgui-1.92.0\imgui_draw.cpp" />
@@ -250,7 +251,8 @@
     <ClInclude Include="..\src\siv3d_recorder.h" />
     <ClInclude Include="..\src\siv3d_main_window.h" />
     <ClInclude Include="..\src\siv3d_window_menu.h" />
-    <ClInclude Include="..\src\wic\wic_gif_encoder.h" />
+    <ClInclude Include="..\src\windows\mf_video_encoder.h" />
+    <ClInclude Include="..\src\windows\wic_gif_encoder.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

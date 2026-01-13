@@ -2,7 +2,8 @@
 #include "siv3d_recorder.h"
 
 #if SIV3D_PLATFORM(WINDOWS)
-#include "wic/wic_gif_encoder.h"
+	#include "windows/wic_gif_encoder.h" /* s3d::AnimatedGIFWriterでは透過GIFが点滅するため。 */
+	#include "windows/mf_video_encoder.h" /* s3d::VideoWriterではビットレートが過剰なため。 */
 #endif
 
 
@@ -83,17 +84,21 @@ bool CSiv3dRecorder::end(s3d::FilePath& filePath)
 	}
 	else
 	{
-		const auto &extension = s3d::FileSystem::Extension(filePath);
-		if (extension.empty())
+		if (const auto& extension = s3d::FileSystem::Extension(filePath); extension.empty())
 		{
 			if (m_outputType == EOutputType::Gif)
 			{
 				filePath += U".gif";
 			}
-			else if(m_outputType == EOutputType::Video)
+			else if (m_outputType == EOutputType::Video)
 			{
 				filePath += U".mp4";
 			}
+		}
+
+		if (const auto& parentPath = s3d::FileSystem::ParentPath(filePath); not s3d::FileSystem::Exists(parentPath))
+		{
+			s3d::FileSystem::CreateDirectories(parentPath);
 		}
 	}
 
@@ -105,7 +110,7 @@ bool CSiv3dRecorder::end(s3d::FilePath& filePath)
 		wicGifEncoder.initialise(s3d::Unicode::ToWstring(filePath).c_str());
 		if (wicGifEncoder.hasBeenInitialised())
 		{
-			float delay = static_cast<float>(1.0 / m_fps);
+			const float delay = static_cast<float>(1.0 / m_fps);
 			for (auto& frame : m_frames)
 			{
 				s3d::Image image;
@@ -127,6 +132,7 @@ bool CSiv3dRecorder::end(s3d::FilePath& filePath)
 				frame.readAsImage(image);
 				for (auto& pixel : image)
 				{
+					/* そのままの透過度では輪郭が崩れるので補正する。 */
 					if (pixel.a > 127)
 					{
 						pixel.a = 255;
@@ -142,6 +148,29 @@ bool CSiv3dRecorder::end(s3d::FilePath& filePath)
 	}
 	else if (m_outputType == EOutputType::Video)
 	{
+#if SIV3D_PLATFORM(WINDOWS)
+		CMfVideoEncoder mfVideoEncorder;
+		mfVideoEncorder.initialise(s3d::Unicode::ToWstring(filePath).c_str(), m_frameSize.x, m_frameSize.y, m_fps);
+		if (mfVideoEncorder.hasBeenInitialised())
+		{
+			/* AMD製CPUでは縦幅・横幅は4の倍数長でないと書き出しDLL内でハングする。 */
+			bool toBeTruncated = s3d::GetCPUInfo().vendor.contains(U"AMD");
+			for (auto& frame : m_frames)
+			{
+				s3d::Image image;
+				frame.readAsImage(image);
+				if (toBeTruncated)
+				{
+					image.resize(image.width() & 0xfffffffc, image.height() & 0xfffffffc);
+				}
+
+				const s3d::uint32 pixelSize = static_cast<s3d::uint32>(image.stride() * image.height());
+				result |= mfVideoEncorder.commitCpuFrame(image.dataAsUint8(), pixelSize);
+				frame.release();
+			}
+			mfVideoEncorder.finalise();
+		}
+#else
 		s3d::VideoWriter videoWriter;
 		videoWriter.open(filePath, m_frameSize, m_fps);
 		if (videoWriter.isOpen())
@@ -156,6 +185,7 @@ bool CSiv3dRecorder::end(s3d::FilePath& filePath)
 			}
 			videoWriter.close();
 		}
+#endif
 	}
 	clear();
 

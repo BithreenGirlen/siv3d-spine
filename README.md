@@ -1,4 +1,4 @@
-# siv3d-spine
+﻿# siv3d-spine
 
 [Siv3D](https://github.com/Siv3D/OpenSiv3D) を使った[Spine](http://esotericsoftware.com/)の描画。
 
@@ -33,10 +33,13 @@ https://github.com/user-attachments/assets/2e2859bf-8c11-4c78-898c-bea186773a0d
 | [siv3d_recorder.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/example/src/siv3d_recorder.h) | 描画結果の動画出力。 |
 | [siv3d_window_menu.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/example/src/siv3d_window_menu.h) | メニュー欄状態変更・選択通知。 |
 | [imgui/siv3d_imgui.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/example/src/imgui/siv3d_imgui.h) | [Dear ImGui](https://github.com/ocornut/imgui)とSiv3Dの[連繋](https://github.com/BithreenGirlen/siv3d-imgui) |
-| [wic/wic_gif_encoder.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/example/src/wic/wic_gif_encoder.h) | WICによるGIF書き込み。 |
+| [windows/wic_gif_encoder.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/example/src/windows/wic_gif_encoder.h) | WICによるGIF書き出し。 |
+| [windows/mf_video_encoder.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/example/src/windows/mf_video_encoder.h) | Media FoundationによるH264書き出し。 |
 
-- `siv3d_recorder.cpp`はごく短時間の録画を想定しています。これは低遅延を優先し、録画中はフレームを内部に溜め込み録画終了時にストリームを開いて一挙に書き出す、という設計になっているためです。
-- `wic_gif_encoder.cpp/h`はSiv3Dの機能に依存していないため、Windows環境であれば描画ライブラリに関係なく使用できます。
+- `siv3d_recorder.cpp`はごく短時間の録画を想定しています。これは低遅延を優先して録画中はフレームを内部に溜め込み、録画終了時にストリームを開いて一挙に書き出す、という設計になっているためです。
+- `wic_gif_encoder.cpp/h`並び`mf_video_encoder.cpp/h`はSiv3Dの機能に依存していないため、Windows環境であれば描画ライブラリに関係なく使用できます。
+  - 前者は`s3d::AnimatedGIFWriter`では透過GIFが点滅してしまうため代替として用いています。
+  - 後者は`s3d::VideoWriter`ではビットレートが過剰なため代替として用いています。
 
 ## 実行例プロジェクト説明
 

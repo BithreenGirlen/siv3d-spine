@@ -24,9 +24,11 @@ public:
 	EOutputType getOutputType() const;
 	s3d::int32 getFps() const;
 
+	/// @brief 前回のフレーム保存時刻から設定時間経過したか
 	bool hasTimePassed() const;
 	/// @brief フレーム保存。
 	bool commitFrame(const s3d::RenderTexture& frame);
+	/// @brief 少なくとも1フレーム保存しているか
 	bool hasFrames() const;
 
 	/// @param filePath 出力先。拡張子がない場合出力形式に応じて自動付与。
