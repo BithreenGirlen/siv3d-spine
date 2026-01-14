@@ -1,6 +1,7 @@
 ﻿
+
 #include "spine_player.h"
-#include "spine_loader.h"
+
 
 CSpinePlayer::CSpinePlayer()
 {
@@ -10,89 +11,6 @@ CSpinePlayer::CSpinePlayer()
 CSpinePlayer::~CSpinePlayer()
 {
 
-}
-
-bool CSpinePlayer::loadSpineFromFile(const std::vector<std::string>& atlasPaths, const std::vector<std::string>& skelPaths, bool isBinarySkel)
-{
-	if (atlasPaths.size() != skelPaths.size())return false;
-	clearDrawables();
-
-	for (size_t i = 0; i < atlasPaths.size(); ++i)
-	{
-		const std::string& strAtlasPath = atlasPaths[i];
-		const std::string& strSkeletonPath = skelPaths[i];
-
-		std::unique_ptr<spine::Atlas> atlas = std::make_unique<spine::Atlas>(strAtlasPath.c_str(), &m_textureLoader);
-		if (atlas.get() == nullptr)continue;
-
-		std::shared_ptr<spine::SkeletonData> skeletonData = isBinarySkel ?
-			spine_loader::ReadBinarySkeletonFromFile(strSkeletonPath.c_str(), atlas.get(), 1.f) :
-			spine_loader::ReadTextSkeletonFromFile(strSkeletonPath.c_str(), atlas.get(), 1.f);
-		if (skeletonData.get() == nullptr)return false;
-
-		m_atlases.push_back(std::move(atlas));
-		m_skeletonData.push_back(std::move(skeletonData));
-	}
-
-	if (m_skeletonData.empty())return false;
-
-	return setupDrawables();
-}
-
-bool CSpinePlayer::loadSpineFromMemory(const std::vector<std::string>& atlasData, const std::vector<std::string>& atlasPaths, const std::vector<std::string>& skelData, bool isBinarySkel)
-{
-	if (atlasData.size() != skelData.size() || atlasData.size() != atlasPaths.size())return false;
-	clearDrawables();
-
-	for (size_t i = 0; i < atlasData.size(); ++i)
-	{
-		const std::string& strAtlasDatum = atlasData[i];
-		const std::string& strAtlasPath = atlasPaths[i];
-		const std::string& strSkeletonData = skelData[i];
-
-		std::unique_ptr<spine::Atlas> atlas = std::make_unique<spine::Atlas>(strAtlasDatum.c_str(), static_cast<int>(strAtlasDatum.size()), strAtlasPath.c_str(), &m_textureLoader);
-		if (atlas.get() == nullptr)continue;
-
-		std::shared_ptr<spine::SkeletonData> skeletonData = isBinarySkel ?
-			spine_loader::ReadBinarySkeletonFromMemory(reinterpret_cast<const unsigned char*>(strSkeletonData.data()), static_cast<int>(strSkeletonData.size()), atlas.get(), 1.f) :
-			spine_loader::ReadTextSkeletonFromMemory(strSkeletonData.data(), atlas.get(), 1.f);
-		if (skeletonData.get() == nullptr)return false;
-
-		m_atlases.push_back(std::move(atlas));
-		m_skeletonData.push_back(std::move(skeletonData));
-	}
-
-	if (m_skeletonData.empty())return false;
-
-	return setupDrawables();
-}
-
-bool CSpinePlayer::addSpineFromFile(const char* szAtlasPath, const char* szSkelPath, bool isBinarySkel)
-{
-	if (m_drawables.empty() || szAtlasPath == nullptr || szSkelPath == nullptr)return false;
-
-	std::unique_ptr<spine::Atlas> atlas = std::make_unique<spine::Atlas>(szAtlasPath, &m_textureLoader);
-	if (atlas.get() == nullptr)return false;
-
-	std::shared_ptr<spine::SkeletonData> skeletonData = isBinarySkel ?
-		spine_loader::ReadBinarySkeletonFromFile(szSkelPath, atlas.get(), 1.f) :
-		spine_loader::ReadTextSkeletonFromFile(szSkelPath, atlas.get(), 1.f);
-	if (skeletonData.get() == nullptr)return false;
-
-	bool bRet = addDrawable(skeletonData.get());
-	if (!bRet)return false;
-
-	m_atlases.push_back(std::move(atlas));
-	m_skeletonData.push_back(std::move(skeletonData));
-	if (m_isDrawOrderReversed)
-	{
-		std::rotate(m_drawables.rbegin(), m_drawables.rbegin() + 1, m_drawables.rend());
-	}
-
-	restartAnimation();
-	resetScale();
-
-	return true;
 }
 
 size_t CSpinePlayer::getNumberOfSpines() const

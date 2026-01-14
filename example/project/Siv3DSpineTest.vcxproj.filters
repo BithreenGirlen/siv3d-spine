@@ -60,9 +60,6 @@
     <ClCompile Include="..\..\siv3d-spine\siv3d_spine_player.cpp">
       <Filter>Source File\siv3d-spine</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\siv3d-spine\spine_loader.cpp">
-      <Filter>Source File\siv3d-spine</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\siv3d-spine\spine_player.cpp">
       <Filter>Source File\siv3d-spine</Filter>
     </ClCompile>
@@ -276,6 +273,12 @@
     <ClCompile Include="..\src\windows\mf_video_encoder.cpp">
       <Filter>Source File\windows</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\siv3d-spine\siv3d_spine_extension.cpp">
+      <Filter>Source File\siv3d-spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\siv3d-spine\siv3d_spine_loader.cpp">
+      <Filter>Source File\siv3d-spine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="App\Resource.rc">
@@ -307,9 +310,6 @@
     <ClInclude Include="..\..\siv3d-spine\siv3d_spine_player.h">
       <Filter>Header File\siv3d-spine</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\siv3d-spine\spine_loader.h">
-      <Filter>Header File\siv3d-spine</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\siv3d-spine\spine_player.h">
       <Filter>Header File\siv3d-spine</Filter>
     </ClInclude>
@@ -318,6 +318,12 @@
     </ClInclude>
     <ClInclude Include="..\src\windows\mf_video_encoder.h">
       <Filter>Header File\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\siv3d-spine\siv3d_spine_extension.h">
+      <Filter>Header File\siv3d-spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\siv3d-spine\siv3d_spine_loader.h">
+      <Filter>Header File\siv3d-spine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -167,18 +167,18 @@ void CSiv3dMainWindow::menuOnOpenFile()
 	/* ".skel.txt"等の形式を考慮してs3d::FileSystem::Extensionは使わない。 */
 	bool isBinarySkel = IsBinarySkeleton(s3d::FileSystem::FileName(selectedSkeleton.value()));
 
-	std::vector<std::string> atlasPaths;
-	std::vector<std::string> skelPaths;
+	s3d::Array<s3d::String> atlasFilePaths;
+	s3d::Array<s3d::String> skeletonFilePaths;
 
-	atlasPaths.push_back(s3d::Unicode::ToUTF8(selectedAtlas.value()));
-	skelPaths.push_back(s3d::Unicode::ToUTF8(selectedSkeleton.value()));
+	atlasFilePaths.push_back(std::move(selectedAtlas.value()));
+	skeletonFilePaths.push_back(std::move(selectedSkeleton.value()));
 
-	m_siv3dSpinePlayer.loadSpineFromFile(atlasPaths, skelPaths, isBinarySkel);
+	m_siv3dSpinePlayer.loadSpineFromFile(atlasFilePaths, skeletonFilePaths, isBinarySkel);
 
 	m_siv3dWindowMenu.updateRestrictiveItemState(m_siv3dSpinePlayer.hasSpineBeenLoaded());
 	if (m_siv3dSpinePlayer.hasSpineBeenLoaded())
 	{
-		s3d::Window::SetTitle(s3d::FileSystem::BaseName(selectedAtlas.value()));
+		s3d::Window::SetTitle(s3d::FileSystem::BaseName(atlasFilePaths[0]));
 		m_spineCanvasScale = m_siv3dSpinePlayer.getSkeletonScale();
 	}
 	resizeWindow();

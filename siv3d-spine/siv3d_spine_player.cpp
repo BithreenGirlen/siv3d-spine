@@ -1,6 +1,7 @@
 ﻿
 
 #include "siv3d_spine_player.h"
+#include "siv3d_spine_loader.h"
 
 CSiv3dSpinePlayer::CSiv3dSpinePlayer()
 {
@@ -10,6 +11,89 @@ CSiv3dSpinePlayer::CSiv3dSpinePlayer()
 CSiv3dSpinePlayer::~CSiv3dSpinePlayer()
 {
 
+}
+
+bool CSiv3dSpinePlayer::loadSpineFromFile(const s3d::Array<s3d::String>& atlasFilePaths, const s3d::Array<s3d::String>& skeletonFilePaths, bool isBinarySkel)
+{
+	if (atlasFilePaths.size() != skeletonFilePaths.size())return false;
+	clearDrawables();
+
+	for (size_t i = 0; i < atlasFilePaths.size(); ++i)
+	{
+		const auto& atlasFilePath = atlasFilePaths[i];
+		const auto& skeletonFilePath = skeletonFilePaths[i];
+
+		std::shared_ptr<spine::Atlas> pAtlas = siv3d_spine_loader::ReadAtlasFromFile(atlasFilePath, &m_textureLoader);
+		if (pAtlas == nullptr) continue;
+
+		std::shared_ptr<spine::SkeletonData> pSkeletonData = isBinarySkel ?
+			siv3d_spine_loader::ReadBinarySkeletonFromFile(skeletonFilePath, pAtlas.get()) :
+			siv3d_spine_loader::ReadJsonSkeletonFromFile(skeletonFilePath, pAtlas.get());
+		if (pSkeletonData == nullptr)return false;
+
+		m_atlases.push_back(std::move(pAtlas));
+		m_skeletonData.push_back(std::move(pSkeletonData));
+	}
+
+	if (m_skeletonData.empty())return false;
+
+	return setupDrawables();
+}
+
+bool CSiv3dSpinePlayer::loadSpineFromMemory(const s3d::Array<s3d::Array<s3d::Byte>>& atlasFileData, const s3d::Array<s3d::String>& textureDirectories, const s3d::Array<s3d::Array<s3d::Byte>>& skeletonFileData, bool isBinarySkel)
+{
+	if (atlasFileData.size() != skeletonFileData.size() || atlasFileData.size() != textureDirectories.size())return false;
+	clearDrawables();
+
+	for (size_t i = 0; i < atlasFileData.size(); ++i)
+	{
+		const auto& atlasFileDatum = atlasFileData[i];
+		const auto& textureDirectory = textureDirectories[i];
+		const auto& skeletonFileDatum = skeletonFileData[i];
+
+		std::shared_ptr<spine::Atlas> pAtlas = siv3d_spine_loader::ReadAtlasFromMemory(atlasFileDatum, textureDirectory, &m_textureLoader);
+		if (pAtlas == nullptr) continue;
+
+		std::shared_ptr<spine::SkeletonData> pSkeletonData = isBinarySkel ?
+			siv3d_spine_loader::ReadBinarySkeletonFromMemory(skeletonFileDatum, pAtlas.get()) :
+			siv3d_spine_loader::ReadJsonSkeletonFromMemory(skeletonFileDatum, pAtlas.get());
+		if (pSkeletonData == nullptr)return false;
+
+		m_atlases.push_back(std::move(pAtlas));
+		m_skeletonData.push_back(std::move(pSkeletonData));
+	}
+
+	if (m_skeletonData.empty())return false;
+
+	return setupDrawables();
+}
+
+bool CSiv3dSpinePlayer::addSpineFromFile(const s3d::String& atlasFilePath, const s3d::String& skeletonFilePath, bool isBinarySkel)
+{
+	if (m_drawables.empty() || atlasFilePath.empty() || skeletonFilePath.empty())return false;
+
+	std::shared_ptr<spine::Atlas> pAtlas = siv3d_spine_loader::ReadAtlasFromFile(atlasFilePath, &m_textureLoader);
+	if (pAtlas == nullptr) false;
+
+	std::shared_ptr<spine::SkeletonData> pSkeletonData = isBinarySkel ?
+		siv3d_spine_loader::ReadBinarySkeletonFromFile(skeletonFilePath, pAtlas.get()) :
+		siv3d_spine_loader::ReadJsonSkeletonFromFile(skeletonFilePath, pAtlas.get());
+	if (pSkeletonData == nullptr)return false;
+
+	bool bRet = addDrawable(pSkeletonData.get());
+	if (!bRet)return false;
+
+	m_atlases.push_back(std::move(pAtlas));
+	m_skeletonData.push_back(std::move(pSkeletonData));
+	if (m_isDrawOrderReversed)
+	{
+		std::rotate(m_drawables.rbegin(), m_drawables.rbegin() + 1, m_drawables.rend());
+	}
+
+	restartAnimation();
+	resetScale();
+
+	return true;
 }
 
 void CSiv3dSpinePlayer::redraw()

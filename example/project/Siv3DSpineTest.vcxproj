@@ -156,8 +156,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\siv3d-spine\siv3d_spine.cpp" />
+    <ClCompile Include="..\..\siv3d-spine\siv3d_spine_extension.cpp" />
+    <ClCompile Include="..\..\siv3d-spine\siv3d_spine_loader.cpp" />
     <ClCompile Include="..\..\siv3d-spine\siv3d_spine_player.cpp" />
-    <ClCompile Include="..\..\siv3d-spine\spine_loader.cpp" />
     <ClCompile Include="..\..\siv3d-spine\spine_player.cpp" />
     <ClCompile Include="..\src\Main.cpp" />
     <ClCompile Include="..\src\imgui\siv3d_imgui.cpp" />
@@ -244,8 +245,9 @@
   <ItemGroup>
     <ClInclude Include="..\..\siv3d-spine\siv3d_spine.h" />
     <ClInclude Include="..\..\siv3d-spine\siv3d_spine_blendmode.h" />
+    <ClInclude Include="..\..\siv3d-spine\siv3d_spine_extension.h" />
+    <ClInclude Include="..\..\siv3d-spine\siv3d_spine_loader.h" />
     <ClInclude Include="..\..\siv3d-spine\siv3d_spine_player.h" />
-    <ClInclude Include="..\..\siv3d-spine\spine_loader.h" />
     <ClInclude Include="..\..\siv3d-spine\spine_player.h" />
     <ClInclude Include="..\src\imgui\siv3d_imgui.h" />
     <ClInclude Include="..\src\siv3d_recorder.h" />

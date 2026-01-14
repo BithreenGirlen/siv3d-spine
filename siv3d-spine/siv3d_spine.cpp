@@ -9,13 +9,6 @@
 	#endif
 #endif
 
-namespace spine
-{
-	spine::SpineExtension* getDefaultExtension()
-	{
-		return new DefaultSpineExtension();
-	}
-}
 
 CS3dSpineDrawable::CS3dSpineDrawable(spine::SkeletonData* pSkeletonData)
 {
@@ -377,7 +370,7 @@ void CS3dTextureLoader::load(spine::AtlasPage& atlasPage, const spine::String& p
 	s3d::FilePath filePath = s3d::Unicode::FromUTF8(path.buffer());
 	if (filePath.starts_with(U"//"))
 	{
-		filePath.replace(U"/", U"\\");
+		filePath.replace(U'/', U'\\');
 	}
 	s3d::Texture* pTexture = new (std::nothrow) s3d::Texture(filePath);
 

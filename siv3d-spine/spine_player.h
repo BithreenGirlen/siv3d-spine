@@ -20,11 +20,6 @@ public:
 	CSpinePlayer();
 	virtual ~CSpinePlayer();
 
-	bool loadSpineFromFile(const std::vector<std::string>& atlasPaths, const std::vector<std::string>& skelPaths, bool isBinarySkel);
-	bool loadSpineFromMemory(const std::vector<std::string>& atlasData, const std::vector<std::string>& atlasPaths, const std::vector<std::string>& skelData, bool isBinarySkel);
-
-	bool addSpineFromFile(const char* szAtlasPath, const char* szSkelPath, bool isBinarySkel);
-
 	size_t getNumberOfSpines() const;
 	bool hasSpineBeenLoaded() const;
 
@@ -94,7 +89,7 @@ protected:
 	enum Constants { kBaseWidth = 1280, kBaseHeight = 720, kMinAtlas = 1024 };
 
 	CTextureLoader m_textureLoader;
-	std::vector<std::unique_ptr<spine::Atlas>> m_atlases;
+	std::vector<std::shared_ptr<spine::Atlas>> m_atlases;
 	std::vector<std::shared_ptr<spine::SkeletonData>> m_skeletonData;
 	std::vector<std::shared_ptr<CSpineDrawable>> m_drawables;
 
