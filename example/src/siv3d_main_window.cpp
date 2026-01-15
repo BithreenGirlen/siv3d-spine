@@ -156,24 +156,13 @@ void CSiv3dMainWindow::menuOnOpenFile()
 	auto selectedSkeleton = s3d::Dialog::OpenFile({ { U"Skeleton file", skelCandidates }, { U"All files", { U"*" } } }, U"", U"Select skeleton");
 	if (!selectedSkeleton.has_value())return;
 
-	const auto IsBinarySkeleton = [&](const s3d::String& str)
-		-> bool
-		{
-			const s3d::Array<s3d::String> binaryCandidates = { U"skel", U"bin", U"bytes" };
-			return binaryCandidates.contains_if(
-				[&str](const s3d::String& candidate) {return str.contains(candidate); });
-		};
-
-	/* ".skel.txt"等の形式を考慮してs3d::FileSystem::Extensionは使わない。 */
-	bool isBinarySkel = IsBinarySkeleton(s3d::FileSystem::FileName(selectedSkeleton.value()));
-
 	s3d::Array<s3d::String> atlasFilePaths;
 	s3d::Array<s3d::String> skeletonFilePaths;
 
 	atlasFilePaths.push_back(std::move(selectedAtlas.value()));
 	skeletonFilePaths.push_back(std::move(selectedSkeleton.value()));
 
-	m_siv3dSpinePlayer.loadSpineFromFile(atlasFilePaths, skeletonFilePaths, isBinarySkel);
+	m_siv3dSpinePlayer.loadSpineFromFile(atlasFilePaths, skeletonFilePaths);
 
 	m_siv3dWindowMenu.updateRestrictiveItemState(m_siv3dSpinePlayer.hasSpineBeenLoaded());
 	if (m_siv3dSpinePlayer.hasSpineBeenLoaded())

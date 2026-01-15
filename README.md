@@ -12,19 +12,19 @@ https://github.com/user-attachments/assets/2e2859bf-8c11-4c78-898c-bea186773a0d
 
 | ファイル | 機能 |
 | --- | --- |
-| [siv3d_spine.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/siv3d-spine/siv3d_spine.h) | Siv3Dの機能を使ったSpineのテクスチャ生成・破棄、描画処理。 |
+| [siv3d_spine.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/siv3d-spine/siv3d_spine.cpp) | Siv3Dの機能を使ったSpineのテクスチャ生成・破棄、描画処理。 |
 | [siv3d_spine_blendmode.h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/siv3d-spine/siv3d_spine_blendmode.h) | Siv3Dの定数に基づくSpine混色法定義。 |
 | [siv3d_spine_extension.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/siv3d-spine/siv3d_spine_extension.cpp) | Spineの機能命令から呼び出されるメモリ割り当て・ファイル読み取り実装。 |
 | [siv3d_spine_loader.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/siv3d-spine/siv3d_spine_loader.cpp) | Spine出力ファイルの取り込み処理。 |
-| [siv3d_spine_player.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/siv3d-spine/siv3d_spine_player.h) | Siv3Dの機能を使ったSpine描画時の視点・拡縮補正。 |
-| [spine_player.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/siv3d-spine/spine_player.h) | Spineの機能命令をまとめたもの。 |
+| [siv3d_spine_player.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/siv3d-spine/siv3d_spine_player.cpp) | Siv3Dの機能を使ったSpine描画時の視点・拡縮補正。 |
+| [spine_player.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/siv3d-spine/spine_player.cpp) | Spineの機能命令をまとめたもの。 |
 
 - これらのファイルを公式の汎用ランタイム`spine-cpp`と共に使うことでSiv3DでのSpine描画が行えます。
 - `spine_player.cpp/h`は描画ライブラリ側の機能に依らないよう設計しています。
   - 厳密には二次元座標の点`FPoint2`は描画ライブラリ側の定義なのですが、概ねどのライブラリも`(x, y)`の変数名なので、内部で使用しています。
 - Spine描画に用いる混色法は全てカスタム定義しています。これは定義済みの各種`s3d::BlendState`は基本的に`outA = dstA`の計算式になっていて`srcA`を寄与させる表現ができないためです。
 - `siv3d_spine_extension.cpp`は実際にはファイル読み取りを実装していません。これはファイルパスを引き渡すSpineの機能命令は用いず、Siv3Dを通じてメモリ展開したファイルデータを引き渡した方が一貫性を保てるからです。
-  - Siv3D側のファイルデータ(テキスト`s3d::String`, バイナリ`s3d::Byte`)とSpine側のファイルデータ(テキスト`char`, バイナリ`unsigned char`)の変換は`siv3d_spine_loader.cpp`にて行っています。
+  - このメモリ展開は`siv3d_spine_loader.cpp`にて行っています。
 
 ### Spineに関係しないもの
 
@@ -32,12 +32,12 @@ https://github.com/user-attachments/assets/2e2859bf-8c11-4c78-898c-bea186773a0d
 
 | ファイル | 機能 |
 | --- | --- |
-| [siv3d_main_window.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/example/src/siv3d_main_window.h) | Siv3Dのウィンドウ表示。 |
-| [siv3d_recorder.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/example/src/siv3d_recorder.h) | 描画結果の動画出力。 |
-| [siv3d_window_menu.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/example/src/siv3d_window_menu.h) | メニュー欄状態変更・選択通知。 |
-| [imgui/siv3d_imgui.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/example/src/imgui/siv3d_imgui.h) | [Dear ImGui](https://github.com/ocornut/imgui)とSiv3Dの[連繋](https://github.com/BithreenGirlen/siv3d-imgui) |
-| [windows/wic_gif_encoder.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/example/src/windows/wic_gif_encoder.h) | WICによるGIF書き出し。 |
-| [windows/mf_video_encoder.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/example/src/windows/mf_video_encoder.h) | Media FoundationによるH264書き出し。 |
+| [siv3d_main_window.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/example/src/siv3d_main_window.cpp) | Siv3Dのウィンドウ表示。 |
+| [siv3d_recorder.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/example/src/siv3d_recorder.cpp) | 描画結果の動画出力。 |
+| [siv3d_window_menu.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/example/src/siv3d_window_menu.cpp) | メニュー欄状態変更・選択通知。 |
+| [imgui/siv3d_imgui.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/example/src/imgui/siv3d_imgui.cpp) | [Dear ImGui](https://github.com/ocornut/imgui)とSiv3Dの[連繋](https://github.com/BithreenGirlen/siv3d-imgui) |
+| [windows/wic_gif_encoder.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/example/src/windows/wic_gif_encoder.cpp) | WICによるGIF書き出し。 |
+| [windows/mf_video_encoder.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/example/src/windows/mf_video_encoder.cpp) | Media FoundationによるH264書き出し。 |
 
 - `siv3d_recorder.cpp`はごく短時間の録画を想定しています。これは低遅延を優先して録画中はフレームを内部に溜め込み、録画終了時にストリームを開いて一挙に書き出す、という設計になっているためです。
 - `wic_gif_encoder.cpp/h`並び`mf_video_encoder.cpp/h`はSiv3Dの機能に依存していないため、Windows環境であれば描画ライブラリに関係なく使用できます。
