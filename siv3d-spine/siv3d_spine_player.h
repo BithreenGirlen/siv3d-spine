@@ -9,10 +9,10 @@ public:
 	CSiv3dSpinePlayer();
 	virtual ~CSiv3dSpinePlayer();
 
-	bool loadSpineFromFile(const s3d::Array<s3d::String>& atlasFilePaths, const s3d::Array<s3d::String>& skeletonFilePaths);
-	bool loadSpineFromMemory(const s3d::Array<s3d::Blob>& atlasFileData, const s3d::Array<s3d::String>& textureDirectories, const s3d::Array<s3d::Blob>& skeletonFileData);
+	bool loadSpineFromFile(const s3d::Array<s3d::FilePath>& atlasFilePaths, const s3d::Array<s3d::FilePath>& skeletonFilePaths);
+	bool loadSpineFromMemory(const s3d::Array<s3d::Blob>& atlasFileData, const s3d::Array<s3d::FilePath>& textureDirectories, const s3d::Array<s3d::Blob>& skeletonFileData);
 
-	bool addSpineFromFile(const s3d::String& atlasFilePath, const s3d::String& skelFilePath);
+	bool addSpineFromFile(const s3d::FilePath& atlasFilePath, const s3d::FilePath& skelFilePath);
 
 	void redraw();
 

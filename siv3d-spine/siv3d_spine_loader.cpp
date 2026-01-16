@@ -90,8 +90,8 @@ namespace siv3d_spine_loader
 
 		s3d::uint8 length;
 		[[maybe_unused]] s3d::uint64 read = memoryViewReader.read(&length, sizeof(length));
-		if (length < 1 || blob.size() < length) return false;
-		--length;
+		if (length < 1)return false;
+		if (--length; blob.size() < static_cast<size_t>(memoryViewReader.getPos() + length))return false;
 
 		std::string_view version(reinterpret_cast<const std::string_view::value_type*>(&blob[memoryViewReader.getPos()]), length);
 
@@ -114,15 +114,15 @@ namespace siv3d_spine_loader
 
 		s3d::uint8 length;
 		s3d::uint64 read = memoryViewReader.read(&length, sizeof(length));
-		if (length < 1 || blob.size() < length)return false;
-		--length;
+		if (length < 1)return false;
+		if (--length; blob.size() < static_cast<size_t>(memoryViewReader.getPos() + length))return false;
 
 		std::string_view hash(reinterpret_cast<const std::string_view::value_type*>(&blob[memoryViewReader.getPos()]), length);
 
 		memoryViewReader.skip(length);
 		read = memoryViewReader.read(&length, sizeof(length));
-		if (length < 1 || blob.size() < length)return false;
-		--length;
+		if (length < 1)return false;
+		if (--length; blob.size() < static_cast<size_t>(memoryViewReader.getPos() + length))return false;
 
 		std::string_view version(reinterpret_cast<const std::string_view::value_type*>(&blob[memoryViewReader.getPos()]), length);
 
@@ -147,7 +147,14 @@ std::shared_ptr<spine::Atlas> siv3d_spine_loader::ReadAtlasFromFile(const s3d::F
 	bool result = blob.createFromFile(filePath);
 	if (!result) return nullptr;
 
-	const s3d::FilePath textutreDirectory = s3d::FileSystem::ParentPath(filePath);
+	const s3d::FilePath textutreDirectory = s3d::FileSystem::IsResourcePath(filePath) ?
+		[&filePath]() ->const s3d::FilePath
+		{
+			size_t pos = filePath.lastIndexOf(U'/');
+			if (pos == s3d::FilePath::npos)pos = 0;
+			return filePath.substr(0, pos);
+		}() :
+		s3d::FileSystem::ParentPath(filePath);
 	if (textutreDirectory.empty()) return nullptr;
 
 	return ReadAtlasFromMemory(blob, textutreDirectory, pTextureLoader);

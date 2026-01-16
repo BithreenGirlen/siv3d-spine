@@ -13,7 +13,7 @@ CSiv3dSpinePlayer::~CSiv3dSpinePlayer()
 
 }
 
-bool CSiv3dSpinePlayer::loadSpineFromFile(const s3d::Array<s3d::String>& atlasFilePaths, const s3d::Array<s3d::String>& skeletonFilePaths)
+bool CSiv3dSpinePlayer::loadSpineFromFile(const s3d::Array<s3d::FilePath>& atlasFilePaths, const s3d::Array<s3d::FilePath>& skeletonFilePaths)
 {
 	if (atlasFilePaths.size() != skeletonFilePaths.size())return false;
 	clearDrawables();
@@ -38,7 +38,7 @@ bool CSiv3dSpinePlayer::loadSpineFromFile(const s3d::Array<s3d::String>& atlasFi
 	return setupDrawables();
 }
 
-bool CSiv3dSpinePlayer::loadSpineFromMemory(const s3d::Array<s3d::Blob>& atlasFileData, const s3d::Array<s3d::String>& textureDirectories, const s3d::Array<s3d::Blob>& skeletonFileData)
+bool CSiv3dSpinePlayer::loadSpineFromMemory(const s3d::Array<s3d::Blob>& atlasFileData, const s3d::Array<s3d::FilePath>& textureDirectories, const s3d::Array<s3d::Blob>& skeletonFileData)
 {
 	if (atlasFileData.size() != skeletonFileData.size() || atlasFileData.size() != textureDirectories.size())return false;
 	clearDrawables();
@@ -64,7 +64,7 @@ bool CSiv3dSpinePlayer::loadSpineFromMemory(const s3d::Array<s3d::Blob>& atlasFi
 	return setupDrawables();
 }
 
-bool CSiv3dSpinePlayer::addSpineFromFile(const s3d::String& atlasFilePath, const s3d::String& skeletonFilePath)
+bool CSiv3dSpinePlayer::addSpineFromFile(const s3d::FilePath& atlasFilePath, const s3d::FilePath& skeletonFilePath)
 {
 	if (m_drawables.empty() || atlasFilePath.empty() || skeletonFilePath.empty())return false;
 

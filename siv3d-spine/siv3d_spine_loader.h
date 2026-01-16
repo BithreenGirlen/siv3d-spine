@@ -6,7 +6,7 @@
 #include <spine/Atlas.h>
 #include <spine/SkeletonData.h>
 
-/// @brief Spine出力ファイルからの静的データ(Atlas並びSkeletonData)作成
+/// @brief Spine出力ファイルデータ読み込み
 namespace siv3d_spine_loader
 {
 	/// @brief Atlas作成
@@ -14,7 +14,6 @@ namespace siv3d_spine_loader
 	std::shared_ptr<spine::Atlas> ReadAtlasFromMemory(const s3d::Blob& atlasFileData, const s3d::FilePath &textureDirectory, spine::TextureLoader* pTextureLoader);
 
 	/// @brief 内部でJSON形式かバイナリ形式か判断してSkeletonData作成。
-	/// @remark 明示的に指定した方が高速です。
 	std::shared_ptr<spine::SkeletonData> ReadSkeletonFromFile(const s3d::FilePath& filePath, spine::Atlas* pAtlas);
 	std::shared_ptr<spine::SkeletonData> ReadSkeletonFromMemory(const s3d::Blob& skeletonFileData, spine::Atlas* pAtlas);
 

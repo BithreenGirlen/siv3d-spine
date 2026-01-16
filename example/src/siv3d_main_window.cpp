@@ -124,12 +124,14 @@ void CSiv3dMainWindow::initialiseMenuBar()
 						s3d::Vector2D<float> baseSize = targetSize / fSkeletonScale;
 
 						m_siv3dSpinePlayer.setBaseSize(baseSize.x, baseSize.y);
+						m_spineCanvasScale = m_siv3dSpinePlayer.getSkeletonScale();
 						resizeWindow();
 					}, CSiv3dWindowMenu::Restrictive::Yes
 				},
 				{ [this] /* 既定の表示範囲に戻す */
 					{
 						m_siv3dSpinePlayer.resetBaseSize();
+						m_spineCanvasScale = m_siv3dSpinePlayer.getSkeletonScale();
 						resizeWindow();
 					}, CSiv3dWindowMenu::Restrictive::Yes
 				},
@@ -149,15 +151,27 @@ void CSiv3dMainWindow::initialiseMenuBar()
 void CSiv3dMainWindow::menuOnOpenFile()
 {
 	const s3d::Array<s3d::String> atlasCandidates = { U"atlas" , U"atlas.txt" };
-	auto selectedAtlas = s3d::Dialog::OpenFile({ { U"Atlas file", { atlasCandidates } }, { U"All files", { U"*" } } }, U"", U"Select atlas");
+	s3d::Optional<s3d::FilePath> selectedAtlas = s3d::Dialog::OpenFile({ { U"Atlas file", { atlasCandidates } }, { U"All files", { U"*" } } }, U"", U"Select atlas");
 	if (!selectedAtlas.has_value())return;
 
 	const s3d::Array<s3d::String> skelCandidates = { U"skel", U"bin", U"bytes", U"json" };
-	auto selectedSkeleton = s3d::Dialog::OpenFile({ { U"Skeleton file", skelCandidates }, { U"All files", { U"*" } } }, U"", U"Select skeleton");
+	s3d::Optional<s3d::FilePath> selectedSkeleton = s3d::Dialog::OpenFile({ { U"Skeleton file", skelCandidates }, { U"All files", { U"*" } } }, U"", U"Select skeleton");
 	if (!selectedSkeleton.has_value())return;
 
-	s3d::Array<s3d::String> atlasFilePaths;
-	s3d::Array<s3d::String> skeletonFilePaths;
+#if SIV3D_PLATFORM(WINDOWS)
+	const auto UnnormalisePath = [](s3d::FilePath& filePath)
+		{
+			if (filePath.starts_with(U"//"))
+			{
+				filePath.replace(U'/', U'\\');
+			}
+		};
+	UnnormalisePath(selectedAtlas.value());
+	UnnormalisePath(selectedSkeleton.value());
+#endif
+
+	s3d::Array<s3d::FilePath> atlasFilePaths;
+	s3d::Array<s3d::FilePath> skeletonFilePaths;
 
 	atlasFilePaths.push_back(std::move(selectedAtlas.value()));
 	skeletonFilePaths.push_back(std::move(selectedSkeleton.value()));
