@@ -15,14 +15,14 @@ namespace siv3d_spine_loader
 	* | int | 4 |
 	* | float | 4 |
 	* | bool | 1 | 1がtrue, 0がfalse |
-	* | string | variant + n | [Variant - 1]の値がバイナリ長を示し、UTF-8で表現された文字列が続く。空文字はVarinat = 1で表現。 |
+	* | string | variant + n | [Variant - 1]の値がバイナリ長を示し、UTF-8で表現された文字列が続く。空文字はVarinat = 1で表現。
 	*
 	* バイナリ形式ヘッダ仕様
 	* |  型式  |  内容  |
 	* | string | ハッシュ | // Spine 4.0, 4.1ではstringではなくint型2つから成る16進数表記
 	* | string | 版 |
-	* | float | 開始位置x座標 | // Spine 3.7以前には存在せず、この位置から幅データが始まる。 |
-	* | float | 開始位置y座標 | // Spine 3.7以前には存在しない。 |
+	* | float | 開始位置x座標 | // Spine 3.7以前には存在せず、この位置から幅データが始まる。
+	* | float | 開始位置y座標 | // Spine 3.7以前には存在しない。
 	* | float | 幅 |
 	* | float | 高さ |
 	* | bool | 任意データ有無 |
@@ -40,6 +40,18 @@ namespace siv3d_spine_loader
 		Binary,
 	};
 
+	/// @brief ハッシュ文字列か
+	static bool IsHashString(std::string_view s)
+	{
+		return std::ranges::all_of(s, [](const char& c) {return std::isalnum(static_cast<const unsigned char>(c)) != 0 || c == '+' || c == '/'; });
+	}
+
+	/// @brief 版文字列か
+	static bool IsVersionString(std::string_view s)
+	{
+		return std::ranges::all_of(s, [](const char& c) {return std::isdigit(static_cast<const unsigned char>(c)) != 0 || c == '.'; });
+	}
+
 	/// @brief JSON形式と思われるか
 	static bool IsLikelyJsonSkeleton(const s3d::Blob& blob)
 	{
@@ -55,37 +67,36 @@ namespace siv3d_spine_loader
 		if (blob.size() < MinJsonSkeletonFileSize)return false;
 
 		static constexpr const unsigned char skeleton[] = R"("skeleton")";
-		static constexpr const unsigned char version[] = R"("spine")";
+		static constexpr const unsigned char versionKey[] = R"("spine")";
 
 		const unsigned char* begin = reinterpret_cast<const unsigned char*>(blob.data());
 		const unsigned char* end = begin + MinJsonSkeletonFileSize;
-		const auto& skelIter = std::search(begin, end, skeleton, skeleton + sizeof(skeleton) - 1);
-		const auto& versionIter = std::search(begin, end, version, version + sizeof(version) - 1);
+		const unsigned char* iter = std::search(begin, end, skeleton, skeleton + sizeof(skeleton) - 1);
+		if (iter == end)return false;
+		iter = std::search(begin, end, versionKey, versionKey + sizeof(versionKey) - 1);
+		if (iter == end)return false;
 
-		return (skelIter != end) && (versionIter != end);
-	}
+		iter += sizeof(versionKey) - 1;
+		const unsigned char* versionStart = static_cast<const unsigned char*>(std::memchr(iter, '"', end - iter));
+		if (versionStart == nullptr)return false;
+		++versionStart;
+		const unsigned char* versionEnd = static_cast<const unsigned char*>(std::memchr(versionStart, '"', end - versionStart));
+		if (versionEnd == nullptr)return false;
 
-	/// @brief ハッシュ文字列か
-	static bool IsHashString(std::string_view s)
-	{
-		return std::ranges::all_of(s, [](const char& c) {return std::isalnum(static_cast<const unsigned char>(c)) != 0 || c == '+' || c == '/'; });
-	}
+		std::string_view versionValue(reinterpret_cast<const std::string_view::value_type*>(versionStart), versionEnd - versionStart);
 
-	/// @brief 版文字列か
-	static bool IsVersionString(std::string_view s)
-	{
-		return std::ranges::all_of(s, [](const char& c) {return std::isdigit(static_cast<const unsigned char>(c)) != 0 || c == '.'; });
+		return IsVersionString(versionValue);
 	}
 
 	/// @brief 16進数表記ハッシュと版文字列で始まるか
 	static bool StartsWithHexHashPrecedingVersion(const s3d::Blob& blob)
 	{
+		/* ハッシュ8バイト + 版文字列長さ1バイト + 版文字列6バイト(X.X.XX) */
 		static constexpr const size_t HashLength = 8;
-		/* 8 + 1 + 6 */
-		static constexpr const size_t MinHashStringSize = HashLength + 7;
-		if (blob.size() < MinHashStringSize)return false;
+		static constexpr const size_t VersionEndPos = HashLength + 7;
+		if (blob.size() < VersionEndPos)return false;
 
-		s3d::MemoryViewReader memoryViewReader(blob.data(), MinHashStringSize);
+		s3d::MemoryViewReader memoryViewReader(blob.data(), VersionEndPos);
 		memoryViewReader.skip(HashLength);
 
 		s3d::uint8 length;
@@ -148,7 +159,7 @@ std::shared_ptr<spine::Atlas> siv3d_spine_loader::ReadAtlasFromFile(const s3d::F
 	if (!result) return nullptr;
 
 	const s3d::FilePath textutreDirectory = s3d::FileSystem::IsResourcePath(filePath) ?
-		[&filePath]() ->const s3d::FilePath
+		[&filePath]() -> const s3d::FilePath
 		{
 			size_t pos = filePath.lastIndexOf(U'/');
 			if (pos == s3d::FilePath::npos)pos = 0;
@@ -160,14 +171,14 @@ std::shared_ptr<spine::Atlas> siv3d_spine_loader::ReadAtlasFromFile(const s3d::F
 	return ReadAtlasFromMemory(blob, textutreDirectory, pTextureLoader);
 }
 
-std::shared_ptr<spine::Atlas> siv3d_spine_loader::ReadAtlasFromMemory(const s3d::Blob& atlasFileData, const s3d::FilePath& textureDirectory, spine::TextureLoader* pTextureLoader)
+std::shared_ptr<spine::Atlas> siv3d_spine_loader::ReadAtlasFromMemory(const s3d::Blob& atlasFileData, s3d::FilePathView textureDirectory, spine::TextureLoader* pTextureLoader)
 {
 	const std::string u8TextureDirectory = s3d::Unicode::ToUTF8(textureDirectory);
 
 	return std::make_shared<spine::Atlas>(reinterpret_cast<const char*>(atlasFileData.data()), static_cast<int>(atlasFileData.size()), u8TextureDirectory.c_str(), pTextureLoader);
 }
 
-std::shared_ptr<spine::SkeletonData> siv3d_spine_loader::ReadSkeletonFromFile(const s3d::FilePath& filePath, spine::Atlas* pAtlas)
+std::shared_ptr<spine::SkeletonData> siv3d_spine_loader::ReadSkeletonFromFile(s3d::FilePathView filePath, spine::Atlas* pAtlas)
 {
 	s3d::Blob blob;
 	bool result = blob.createFromFile(filePath);
@@ -191,7 +202,7 @@ std::shared_ptr<spine::SkeletonData> siv3d_spine_loader::ReadSkeletonFromMemory(
 	return nullptr;
 }
 
-std::shared_ptr<spine::SkeletonData> siv3d_spine_loader::ReadJsonSkeletonFromFile(const s3d::FilePath& filePath, spine::Atlas* pAtlas)
+std::shared_ptr<spine::SkeletonData> siv3d_spine_loader::ReadJsonSkeletonFromFile(s3d::FilePathView filePath, spine::Atlas* pAtlas)
 {
 	s3d::TextReader textReader;
 	bool result = textReader.open(filePath);
@@ -239,7 +250,7 @@ std::shared_ptr<spine::SkeletonData> siv3d_spine_loader::ReadJsonSkeletonFromMem
 	return std::shared_ptr<spine::SkeletonData>(pSkeletonData);
 }
 
-std::shared_ptr<spine::SkeletonData> siv3d_spine_loader::ReadBinarySkeletonFromFile(const s3d::FilePath& filePath, spine::Atlas* pAtlas)
+std::shared_ptr<spine::SkeletonData> siv3d_spine_loader::ReadBinarySkeletonFromFile(s3d::FilePathView filePath, spine::Atlas* pAtlas)
 {
 	s3d::Blob blob;
 	bool result = blob.createFromFile(filePath);
