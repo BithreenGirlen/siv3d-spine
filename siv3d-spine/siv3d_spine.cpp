@@ -71,17 +71,39 @@ bool CS3dSpineDrawable::isBlendModeNormalForced() const
 	return m_toForceBlendModeNormal;
 }
 
+void CS3dSpineDrawable::setPause(bool paused)
+{
+	m_isPaused = paused;
+}
+
+bool CS3dSpineDrawable::isPaused() const
+{
+	return m_isPaused;
+}
+
+void CS3dSpineDrawable::setVisibility(bool visible)
+{
+	m_isVisible = visible;
+}
+
+bool CS3dSpineDrawable::isVisible() const
+{
+	return m_isVisible;
+}
+
 void CS3dSpineDrawable::update(float fDelta)
 {
 	if (m_skeleton != nullptr && m_animationState != nullptr)
 	{
-#ifndef SPINE_4_1_OR_LATER
-		m_skeleton->update(fDelta);
-#endif
-		m_animationState->update(fDelta);
+		if(!m_isPaused)m_animationState->update(fDelta);
 		m_animationState->apply(*m_skeleton);
+
+		/* Spine 4.1のみSkeleton::updateは存在しない。 */
+#if !defined(SPINE_4_1_OR_LATER) || defined (SPINE_4_2_OR_LATER)
+		if (!m_isPaused)m_skeleton->update(fDelta);
+#endif
+		/* Spine 4.2から物理演算あり。 */
 #ifdef SPINE_4_2_OR_LATER
-		m_skeleton->update(fDelta);
 		m_skeleton->updateWorldTransform(spine::Physics::Physics_Update);
 #else
 		m_skeleton->updateWorldTransform();
@@ -91,7 +113,7 @@ void CS3dSpineDrawable::update(float fDelta)
 
 void CS3dSpineDrawable::draw()
 {
-	if (m_skeleton == nullptr || m_animationState == nullptr)return;
+	if (m_skeleton == nullptr || m_animationState == nullptr || !m_isVisible)return;
 
 	if (m_skeleton->getColor().a == 0)return;
 
@@ -106,7 +128,7 @@ void CS3dSpineDrawable::draw()
 			continue;
 		}
 
-		if (IsSlotToBeLeftOut(slot.getData().getName()))
+		if (isSlotToBeLeftOut(slot.getData().getName()))
 		{
 			m_skeletonClipping.clipEnd(slot);
 			continue;
@@ -360,7 +382,7 @@ s3d::Optional<s3d::Vector4D<float>> CS3dSpineDrawable::getBoundingBoxOfSlot(cons
 	return s3d::none;
 }
 
-bool CS3dSpineDrawable::IsSlotToBeLeftOut(const spine::String& slotName)
+bool CS3dSpineDrawable::isSlotToBeLeftOut(const spine::String& slotName)
 {
 	return m_slotsToLeaveOut.contains(slotName);
 }

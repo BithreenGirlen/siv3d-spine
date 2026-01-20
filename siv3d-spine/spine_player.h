@@ -42,11 +42,17 @@ public:
 	void setSkinByName(const char* skinName);
 	void setupSkin();
 
-	bool premultiplyAlpha(bool toBePremultiplied, size_t nDrawableIndex = 0);
+	void premultiplyAlpha(bool toBePremultiplied, size_t nDrawableIndex = 0);
 	bool isAlphaPremultiplied(size_t nDrawableIndex = 0) const;
 
-	bool forceBlendModeNormal(bool toForce, size_t nDrawableIndex = 0);
+	void forceBlendModeNormal(bool toForce, size_t nDrawableIndex = 0);
 	bool isBlendModeNormalForced(size_t nDrawableIndex = 0) const;
+
+	void setPause(bool paused, size_t nDrawableIndex = 0);
+	bool isPaused(size_t nDrawableIndex = 0) const;
+
+	void setVisibility(bool visible, size_t nDrawableIndex = 0);
+	bool isVisible(size_t nDrawableIndex = 0) const;
 
 	void setDrawOrder(bool toBeReversed);
 	bool isDrawOrderReversed() const;
@@ -91,7 +97,7 @@ protected:
 	CTextureLoader m_textureLoader;
 	std::vector<std::shared_ptr<spine::Atlas>> m_atlases;
 	std::vector<std::shared_ptr<spine::SkeletonData>> m_skeletonData;
-	std::vector<std::shared_ptr<CSpineDrawable>> m_drawables;
+	std::vector<std::unique_ptr<CSpineDrawable>> m_drawables;
 
 	FPoint2 m_fBaseSize = FPoint2{ kBaseWidth, kBaseHeight };
 

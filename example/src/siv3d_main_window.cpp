@@ -97,9 +97,9 @@ void CSiv3dMainWindow::initialiseMenuBar()
 	{
 		const s3d::Array<std::pair<s3d::String, s3d::Array<s3d::String>>> menuItems
 		{
-			{ U"File", { U"Open file"} },
-			{ U"Export", { U"Snap as Webp", U"Export as GIF", U"Export as video"} },
-			{ U"Window", { U"Hide Spine parameter", U"Show help", U"Fit base size to current frame", U"Reset base size", U"Disable auto resizing"}}
+			{ U"File", { U"\U000F102FOpen file"} },
+			{ U"Export", { U"\U000F0193Snap as Webp", U"\U000F05D8Export as GIF", U"\U000F0BDCExport as video"} },
+			{ U"Window", { U"Hide Spine parameter", U"\U000F0625Show help", U"Fit base size to current frame", U"Reset base size", U"Disable auto resizing"}}
 		};
 
 		const s3d::Array<s3d::Array<CSiv3dWindowMenu::ItemProprty>> menuItemProperties
@@ -213,6 +213,8 @@ void CSiv3dMainWindow::menuOnExportAsGif()
 {
 	if (m_pSpinePlayerTexture.get() != nullptr)
 	{
+		m_siv3dSpinePlayer.setVisibility(true);
+		m_siv3dSpinePlayer.setPause(false);
 		m_siv3dSpinePlayer.setTimeScale(1.f);
 		m_siv3dSpinePlayer.restartAnimation();
 		m_siv3dRecorder.start(s3d::Size(m_pSpinePlayerTexture->width(), m_pSpinePlayerTexture->height()), CSiv3dRecorder::EOutputType::Gif, m_imageFps);
@@ -223,6 +225,8 @@ void CSiv3dMainWindow::menuOnExportAsVideo()
 {
 	if (m_pSpinePlayerTexture.get() != nullptr)
 	{
+		m_siv3dSpinePlayer.setVisibility(true);
+		m_siv3dSpinePlayer.setPause(false);
 		m_siv3dSpinePlayer.setTimeScale(1.f);
 		m_siv3dSpinePlayer.restartAnimation();
 		m_siv3dRecorder.start(s3d::Size(m_pSpinePlayerTexture->width(), m_pSpinePlayerTexture->height()), CSiv3dRecorder::EOutputType::Video, m_videoFps);
@@ -518,10 +522,10 @@ void CSiv3dMainWindow::imGuiSpineParameterDialogue()
 		{
 			if (checks.size() != itemNames.size())
 			{
-				checks = s3d::Array<bool>(itemNames.size(), false);
+				clear(itemNames);
 			}
 
-			ImVec2 childWindowSize = { ImGui::GetWindowWidth() * 3 / 4.f, ImGui::GetFontSize() * (checks.size() + 2LL) };
+			ImVec2 childWindowSize = { ImGui::GetWindowWidth() * 3 / 4.f, ImGui::GetFontSize() * (checks.size() / 4 + 2LL) };
 			if (ImGui::BeginChild(windowLabel, childWindowSize, ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeY))
 			{
 				ImGuiMultiSelectIO* ms_io = ImGui::BeginMultiSelect(flags, -1, static_cast<int>(itemNames.size()));
@@ -542,7 +546,7 @@ void CSiv3dMainWindow::imGuiSpineParameterDialogue()
 			ImGui::EndChild();
 		}
 
-		void PickupCheckedItems(const std::vector<std::string>& itemNames, std::vector<std::string>& selectedItems)
+		void pickupCheckedItems(const std::vector<std::string>& itemNames, std::vector<std::string>& selectedItems)
 		{
 			if (itemNames.size() != checks.size())return;
 
@@ -554,10 +558,17 @@ void CSiv3dMainWindow::imGuiSpineParameterDialogue()
 				}
 			}
 		}
+
+
+		void clear(const std::vector<std::string>& itemNames)
+		{
+			checks = s3d::Array<bool>(itemNames.size(), false);
+		}
 	};
 
 	const auto HelpMarker = [](const char* desc)
 		{
+			ImGui::SameLine();
 			ImGui::TextDisabled("(?)");
 			if (ImGui::BeginItemTooltip())
 			{
@@ -586,269 +597,307 @@ void CSiv3dMainWindow::imGuiSpineParameterDialogue()
 			}
 		};
 
-	ImGui::Begin("Spine parameter/manipulator");
+	ImGui::Begin("Spine parameter");
 
-	/* 寸法・座標・拡縮度 */
-	if (ImGui::CollapsingHeader("Size/Scale"))
+	if (ImGui::BeginTabBar("Parameter tabs", ImGuiTabBarFlags_None))
 	{
-		if (m_pSpinePlayerTexture.get() != nullptr)
+		/* 寸法・座標・尺度 */
+		if (ImGui::BeginTabItem("Size/Scale"))
 		{
-			const auto& textureSize = m_pSpinePlayerTexture->size();
-			ImGui::Text("Texture size: (%d, %d)", textureSize.x, textureSize.y);
-		}
+			if (m_pSpinePlayerTexture != nullptr)
+			{
+				const auto& textureSize = m_pSpinePlayerTexture->size();
+				ImGui::Text("Texture size: (%d, %d)", textureSize.x, textureSize.y);
+			}
 
-		s3d::Vector2D<float> baseSize = m_siv3dSpinePlayer.getBaseSize();
-		s3d::Vector2D<float> offset = m_siv3dSpinePlayer.getOffset();
+			s3d::Vector2D<float> baseSize = m_siv3dSpinePlayer.getBaseSize();
+			s3d::Vector2D<float> offset = m_siv3dSpinePlayer.getOffset();
 
-		ImGui::Text("Skeleton size: (%.2f, %.2f)", baseSize.x, baseSize.y);
-		ImGui::Text("Offset: (%.2f, %.2f)", offset.x, offset.y);
-		ImGui::Text("Skeleton scale: %.2f", m_siv3dSpinePlayer.getSkeletonScale());
-		ImGui::Text("Canvas scale: %.2f", m_spineCanvasScale);
+			ImGui::Text("Skeleton size: (%.2f, %.2f)", baseSize.x, baseSize.y);
+			ImGui::Text("Offset: (%.2f, %.2f)", offset.x, offset.y);
+			ImGui::Text("Skeleton scale: %.2f", m_siv3dSpinePlayer.getSkeletonScale());
+			ImGui::Text("Canvas scale: %.2f", m_spineCanvasScale);
 
-		if (ImGui::TreeNode("Slot bounding"))
+			/* 境界矩形 */
+			if (ImGui::TreeNode("Slot bounding"))
+			{
+				const std::vector<std::string>& slotNames = m_siv3dSpinePlayer.getSlotNames();
+				static ImGuiComboBox slotsComboBox;
+				slotsComboBox.update(slotNames, "Slot##SlotBounding");
+				const auto& slotBounding = m_siv3dSpinePlayer.getCurrentBoundingOfSlot(slotNames[slotsComboBox.selectedIndex]);
+				if (!slotBounding)
+				{
+					ImGui::TextColored(ImVec4{ 1.f, 0.f, 0.f, 1.f }, "Slot not found in this animation.");
+				}
+				else
+				{
+					ImGui::Text("Slot bounding: (%.2f, %.2f, %.2f, %.2f)", slotBounding->x, slotBounding->y, slotBounding->x + slotBounding->z, slotBounding->y + slotBounding->w);
+
+					static bool toDrawRect = false;
+					ImGui::Checkbox("Draw slot bounding", &toDrawRect);
+					if (toDrawRect)
+					{
+						static constexpr float fMinThickness = 1.f;
+						static constexpr float fMaxThickness = 14.f;
+						static float fThickness = 2.f;
+						ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.4f);
+						ScrollableSliderFloat("Thickness", &fThickness, fMinThickness, fMaxThickness);
+
+						static ImVec4 fRectangleColor = ImVec4(240 / 255.f, 240 / 255.f, 240 / 255.f, 1.00f);
+						ImGui::SameLine();
+						ImGui::ColorEdit4("Colour", (float*)&fRectangleColor, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_NoInputs);
+						{
+							const s3d::RectF rectF{ slotBounding->x, slotBounding->y, slotBounding->z, slotBounding->w };
+							const s3d::ColorF colour(fRectangleColor.x, fRectangleColor.y, fRectangleColor.z, fRectangleColor.w);
+							const s3d::Transformer2D t(m_siv3dSpinePlayer.calculateTransformMatrix(m_pSpinePlayerTexture->size()));
+							rectF.drawFrame(fThickness, colour);
+						}
+					}
+				}
+
+				ImGui::TreePop();
+			}
+			ImGui::EndTabItem();
+		} /* 寸法・座標・尺度 */
+
+		/* 動作 */
+		if (ImGui::BeginTabItem("Animation"))
+		{
+			const char* pzAnimationName = m_siv3dSpinePlayer.getCurrentAnimationName();
+			s3d::Vector4D<float> animationWatch{};
+			m_siv3dSpinePlayer.getCurrentAnimationTime(&animationWatch.x, &animationWatch.y, &animationWatch.z, &animationWatch.w);
+
+			/* 動作名と再生区間 */
+			ImGui::SliderFloat(pzAnimationName, &animationWatch.y, animationWatch.z, animationWatch.w, "%0.2f");
+			ImGui::Text("Time scale: %.2f", m_siv3dSpinePlayer.getTimeScale());
+
+			const std::vector<std::string>& animationNames = m_siv3dSpinePlayer.getAnimationNames();
+			/* 動作指定 */
+			if (ImGui::TreeNode("Set animation"))
+			{
+				static ImGuiComboBox animationComboBox;
+				animationComboBox.update(animationNames, "##AnimationToSet");
+
+				if (ImGui::Button("Apply##SetAnimation"))
+				{
+					m_siv3dSpinePlayer.setAnimationByIndex(animationComboBox.selectedIndex);
+				}
+
+				ImGui::TreePop();
+			}
+			/* 動作合成 */
+			if (ImGui::TreeNode("Mix animation"))
+			{
+				HelpMarker("Mixing animations will overwrite animation state.\n"
+					"Uncheck all the items and then apply to reset the state.");
+
+				static ImGuiListview animationsListView;
+				animationsListView.update(animationNames, "Animation to mix##AnimationsToMix");
+
+				if (ImGui::Button("Apply##MixAnimations"))
+				{
+					std::vector<std::string> checkedItems;
+					animationsListView.pickupCheckedItems(animationNames, checkedItems);
+					m_siv3dSpinePlayer.mixAnimations(checkedItems);
+				}
+
+				ImGui::TreePop();
+			}
+			ImGui::EndTabItem();
+		} /* 動作 */
+
+		/* 装い */
+		if (ImGui::BeginTabItem("Skin"))
+		{
+			const std::vector<std::string>& skinNames = m_siv3dSpinePlayer.getSkinNames();
+			/* 装い指定 */
+			if (ImGui::TreeNode("Set Skin"))
+			{
+				static ImGuiComboBox skinComboBox;
+				skinComboBox.update(skinNames, "##SkinToSet");
+
+				if (ImGui::Button("Apply##SetSkin"))
+				{
+					m_siv3dSpinePlayer.setSkinByIndex(skinComboBox.selectedIndex);
+				}
+
+				ImGui::TreePop();
+			}
+			/* 装い合成 */
+			if (ImGui::TreeNode("Mix skin"))
+			{
+				HelpMarker("Mixing skins will overwrite the current skin.\n"
+					"The state cannnot be gotten back to the original state unless reloaded.");
+
+				static ImGuiListview skinListView;
+				skinListView.update(skinNames, "Skins to mix##SkinsToMix");
+
+				if (ImGui::Button("Apply##MixSkins"))
+				{
+					std::vector<std::string> checkedItems;
+					skinListView.pickupCheckedItems(skinNames, checkedItems);
+					m_siv3dSpinePlayer.mixSkins(checkedItems);
+				}
+				ImGui::TreePop();
+			}
+			ImGui::EndTabItem();
+		} /* 装い */
+
+		/* 槽溝 */
+		if (ImGui::BeginTabItem("Slot"))
 		{
 			const std::vector<std::string>& slotNames = m_siv3dSpinePlayer.getSlotNames();
-			static ImGuiComboBox slotsComboBox;
-			slotsComboBox.update(slotNames, "Slot##SlotBounding");
-			const auto& slotBounding = m_siv3dSpinePlayer.getCurrentBoundingOfSlot(slotNames[slotsComboBox.selectedIndex]);
-			if (!slotBounding)
+			/* 描画対象から除外 */
+			if (ImGui::TreeNode("Exclude slot"))
 			{
-				ImGui::TextColored(ImVec4{ 1.f, 0.f, 0.f, 1.f }, "Slot not found in this animation.");
+				HelpMarker("Checked slots will be excluded from rendering.");
+
+				static ImGuiListview slotListView;
+				slotListView.update(slotNames, "Slots to exclude##SlotsToExclude");
+
+				if (ImGui::Button("Apply##ExcludeSlots"))
+				{
+					std::vector<std::string> checkedItems;
+					slotListView.pickupCheckedItems(slotNames, checkedItems);
+					m_siv3dSpinePlayer.setSlotsToExclude(checkedItems);
+				}
+
+				ImGui::SameLine();
+				if (ImGui::Button("Clear##ExcludeSlots"))
+				{
+					slotListView.clear(slotNames);
+					m_siv3dSpinePlayer.setSlotsToExclude({});
+				}
+
+				ImGui::TreePop();
+			}
+
+			/* 挿げ替え */
+			if (ImGui::TreeNode("Replace attachment"))
+			{
+				HelpMarker(
+					"This feature is available only when there be slot associated with multiple attachments.\n"
+					"Even if it is permitted to replace slot, it does not gurantee the consistency in timeline.");
+
+				/* 滅多に利用機会がないので、非効率なのは承知でこのまま。 */
+				const auto& slotAttachmentMap = m_siv3dSpinePlayer.getSlotNamesWithTheirAttachments();
+				if (!slotAttachmentMap.empty())
+				{
+					std::vector<std::string> slotCandidates;
+					slotCandidates.reserve(slotAttachmentMap.size());
+					for (const auto& slot : slotAttachmentMap)
+					{
+						slotCandidates.emplace_back(slot.first);
+					}
+
+					static ImGuiComboBox slotsComboBox;
+					slotsComboBox.update(slotCandidates, "Slot##SlotCandidates");
+
+					const auto& iter = slotAttachmentMap.find(slotCandidates[slotsComboBox.selectedIndex]);
+					if (iter != slotAttachmentMap.cend())
+					{
+						static ImGuiComboBox attachmentComboBox;
+						attachmentComboBox.update(iter->second, "Attachment##AssociatesAttachments");
+
+						if (ImGui::Button("Apply##ReplaceAttachment"))
+						{
+							m_siv3dSpinePlayer.replaceAttachment(
+								slotCandidates[slotsComboBox.selectedIndex].c_str(),
+								iter->second[attachmentComboBox.selectedIndex].c_str()
+							);
+						}
+					}
+				}
+				ImGui::TreePop();
+			}
+			ImGui::EndTabItem();
+		} /* 槽溝 */
+
+		/* 描画 */
+		if (ImGui::BeginTabItem("Rendering"))
+		{
+			bool pma = m_siv3dSpinePlayer.isAlphaPremultiplied();
+#if defined(SPINE_4_0) || defined(SPINE_4_1_OR_LATER) || defined(SPINE_4_2_OR_LATER)
+			ImGui::BeginDisabled();
+#endif
+			bool pmaCheckPressed = ImGui::Checkbox("Premultiplied alpha", &pma);
+			HelpMarker("For Spine 3.8 and older, PMA should be configured manually.\n"
+				"For Spine 4.0 and later, PMA property of atlas page is applied.");
+#if defined(SPINE_4_0) || defined(SPINE_4_1_OR_LATER) || defined(SPINE_4_2_OR_LATER)
+			ImGui::EndDisabled();
+#endif
+			if (pmaCheckPressed)
+			{
+				m_siv3dSpinePlayer.premultiplyAlpha(pma);
+			}
+
+			bool toForceBlendModeNormal = m_siv3dSpinePlayer.isBlendModeNormalForced();
+			if (ImGui::Checkbox("Force blend-mode-normal", &toForceBlendModeNormal))
+			{
+				m_siv3dSpinePlayer.forceBlendModeNormal(toForceBlendModeNormal);
+			}
+			HelpMarker("Force if blend-mode-multiply is not well rendered.");
+
+			bool drawOrder = m_siv3dSpinePlayer.isDrawOrderReversed();
+			bool drawOrderConfigureWorthy = m_siv3dSpinePlayer.getNumberOfSpines() > 1;
+			if (drawOrderConfigureWorthy)
+			{
+				if (ImGui::Checkbox("Reverse draw order", &drawOrder))
+				{
+					m_siv3dSpinePlayer.setDrawOrder(drawOrder);
+				}
 			}
 			else
 			{
-				ImGui::Text("Slot bounding: (%.2f, %.2f, %.2f, %.2f)", slotBounding->x, slotBounding->y, slotBounding->x + slotBounding->z, slotBounding->y + slotBounding->w);
-
-				static bool toDrawRect = false;
-				ImGui::Checkbox("Draw slot bounding", &toDrawRect);
-				if (toDrawRect)
-				{
-					static constexpr float fMinThickness = 1.f;
-					static constexpr float fMaxThickness = 14.f;
-					static float fThickness = 2.f;
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.4f);
-					ScrollableSliderFloat("Thickness", &fThickness, fMinThickness, fMaxThickness);
-
-					static ImVec4 fRectangleColor = ImVec4(240 / 255.f, 240 / 255.f, 240 / 255.f, 1.00f);
-					ImGui::SameLine();
-					ImGui::ColorEdit4("Colour", (float*)&fRectangleColor, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_NoInputs);
-					{
-						const s3d::RectF rectF{ slotBounding->x, slotBounding->y, slotBounding->z, slotBounding->w };
-						const s3d::ColorF colour(fRectangleColor.x, fRectangleColor.y, fRectangleColor.z, fRectangleColor.w);
-						const s3d::Transformer2D t(m_siv3dSpinePlayer.calculateTransformMatrix());
-						rectF.drawFrame(fThickness, colour);
-					}
-				}
+				ImGui::BeginDisabled();
+				ImGui::Checkbox("Reverse draw order", &drawOrder);
+				ImGui::EndDisabled();
 			}
 
-			ImGui::TreePop();
-		}
-	}
+			HelpMarker("Draw order is crutial only when rendering multiple Spines.\n"
+				"Be sure to make it appropriate in prior to add animation effect.");
 
-	/* 動作名・動作指定・動作合成 */
-	if (ImGui::CollapsingHeader("Animation"))
-	{
-		const char* pzAnimationName = m_siv3dSpinePlayer.getCurrentAnimationName();
-		s3d::Vector4D<float> animationWatch{};
-		m_siv3dSpinePlayer.getCurrentAnimationTime(&animationWatch.x, &animationWatch.y, &animationWatch.z, &animationWatch.w);
-
-		ImGui::SliderFloat(pzAnimationName, &animationWatch.y, animationWatch.z, animationWatch.w, "%0.2f");
-		ImGui::Text("Time scale: %.2f", m_siv3dSpinePlayer.getTimeScale());
-
-		const std::vector<std::string>& animationNames = m_siv3dSpinePlayer.getAnimationNames();
-		/* 動作指定 */
-		if (ImGui::TreeNode("Set animation"))
-		{
-			static ImGuiComboBox animationComboBox;
-			animationComboBox.update(animationNames, "##AnimationToSet");
-
-			if (ImGui::Button("Apply##SetAnimation"))
+			bool isVisible = m_siv3dSpinePlayer.isVisible();
+			if (ImGui::Checkbox("Visible", &isVisible))
 			{
-				m_siv3dSpinePlayer.setAnimationByIndex(animationComboBox.selectedIndex);
+				m_siv3dSpinePlayer.setVisibility(isVisible);
 			}
 
-			ImGui::TreePop();
-		}
-		/* 動作合成 */
-		if (ImGui::TreeNode("Mix animation"))
-		{
-			HelpMarker("Mixing animations will overwrite animation state.\n"
-				"Uncheck all the items and then apply to reset the state.");
-
-			static ImGuiListview animationsListView;
-			animationsListView.update(animationNames, "Animation to mix##AnimationsToMix");
-
-			if (ImGui::Button("Apply##MixAnimations"))
+			bool isPaused = m_siv3dSpinePlayer.isPaused();
+			if (ImGui::Checkbox("Paused", &isPaused))
 			{
-				std::vector<std::string> checkedItems;
-				animationsListView.PickupCheckedItems(animationNames, checkedItems);
-				m_siv3dSpinePlayer.mixAnimations(checkedItems);
+				m_siv3dSpinePlayer.setPause(isPaused);
 			}
 
-			ImGui::TreePop();
-		}
-	}
+			ImGui::EndTabItem();
+		} /* 描画 */
 
-	/* 装い指定・合成 */
-	if (ImGui::CollapsingHeader("Skin"))
-	{
-		const std::vector<std::string>& skinNames = m_siv3dSpinePlayer.getSkinNames();
-		/* 装い指定 */
-		if (ImGui::TreeNode("Set Skin"))
+		/* 書き出し */
+		if (ImGui::BeginTabItem("Export"))
 		{
-			static ImGuiComboBox skinComboBox;
-			skinComboBox.update(skinNames, "##SkinToSet");
-
-			if (ImGui::Button("Apply##SetSkin"))
+			static constexpr int minFps = 15;
+			static constexpr int maxImageFps = 60;
+			static constexpr int maxVideoFps = 120;
+			if constexpr (sizeof(s3d::int32) == sizeof(int))
 			{
-				m_siv3dSpinePlayer.setSkinByIndex(skinComboBox.selectedIndex);
+				ImGui::SliderInt("GIF", &m_imageFps, minFps, maxImageFps);
+				HelpMarker("GIF delay is defined in 10ms increments.\n Mind that fractional part will be discarded.");
+				ImGui::SliderInt("Video", &m_videoFps, minFps, maxVideoFps);
 			}
-
-			ImGui::TreePop();
-		}
-		/* 装い合成 */
-		if (ImGui::TreeNode("Mix skin"))
-		{
-			HelpMarker("Mixing skins will overwrite the current skin.\n"
-				"The state cannnot be gotten back to the original state unless reloaded.");
-
-			static ImGuiListview skinListView;
-			skinListView.update(skinNames, "Skins to mix##SkinsToMix");
-
-			if (ImGui::Button("Apply##MixSkins"))
+			else
 			{
-				std::vector<std::string> checkedItems;
-				skinListView.PickupCheckedItems(skinNames, checkedItems);
-				m_siv3dSpinePlayer.mixSkins(checkedItems);
-			}
-			ImGui::TreePop();
-		}
-	}
-
-	/* 槽溝 */
-	if (ImGui::CollapsingHeader("Slot"))
-	{
-		const std::vector<std::string>& slotNames = m_siv3dSpinePlayer.getSlotNames();
-		/* 描画対象から除外 */
-		if (ImGui::TreeNode("Exclude slot"))
-		{
-			HelpMarker("Checked slots will be excluded from rendering.");
-
-			static ImGuiListview slotListView;
-			slotListView.update(slotNames, "Slots to exclude##SlotsToExclude");
-
-			if (ImGui::Button("Apply##ExcludeSlots"))
-			{
-				std::vector<std::string> checkedItems;
-				slotListView.PickupCheckedItems(slotNames, checkedItems);
-				m_siv3dSpinePlayer.setSlotsToExclude(checkedItems);
+				static int imageFps = m_imageFps;
+				static int videoFps = m_videoFps;
+				ImGui::SliderInt("GIF", &imageFps, minFps, maxImageFps);
+				ImGui::SliderInt("Video", &videoFps, minFps, maxVideoFps);
+				m_imageFps = static_cast<s3d::int32>(imageFps);
+				m_videoFps = static_cast<s3d::int32>(videoFps);
 			}
 
-			ImGui::TreePop();
-		}
+			ImGui::EndTabItem();
+		} /* 書き出し */
 
-		/* 挿げ替え */
-		if (ImGui::TreeNode("Replace attachment"))
-		{
-			HelpMarker(
-				"This feature is available only when there be slot associated with multiple attachments.\n"
-				"Even if it is permitted to replace slot, it does not gurantee the consistency in timeline.");
-
-			/* 滅多に利用機会がないので、非効率なのは承知でこのまま。 */
-			const auto& slotAttachmentMap = m_siv3dSpinePlayer.getSlotNamesWithTheirAttachments();
-			if (!slotAttachmentMap.empty())
-			{
-				std::vector<std::string> slotCandidates;
-				slotCandidates.reserve(slotAttachmentMap.size());
-				for (const auto& slot : slotAttachmentMap)
-				{
-					slotCandidates.emplace_back(slot.first);
-				}
-
-				static ImGuiComboBox slotsComboBox;
-				slotsComboBox.update(slotCandidates, "Slot##SlotCandidates");
-
-				const auto& iter = slotAttachmentMap.find(slotCandidates[slotsComboBox.selectedIndex]);
-				if (iter != slotAttachmentMap.cend())
-				{
-					static ImGuiComboBox attachmentComboBox;
-					attachmentComboBox.update(iter->second, "Attachment##AssociatesAttachments");
-
-					if (ImGui::Button("Apply##ReplaceAttachment"))
-					{
-						m_siv3dSpinePlayer.replaceAttachment(
-							slotCandidates[slotsComboBox.selectedIndex].c_str(),
-							iter->second[attachmentComboBox.selectedIndex].c_str()
-						);
-					}
-				}
-			}
-			ImGui::TreePop();
-		}
-	}
-
-	/* 描画 */
-	if (ImGui::CollapsingHeader("Rendering"))
-	{
-		ImGui::SeparatorText("Premultiplied alpha");
-
-		HelpMarker("For Spine 3.8 and older, PMA should be configured manually.\n"
-			"For Spine 4.0 and later, PMA property of atlas page is applied.");
-
-		bool pma = m_siv3dSpinePlayer.isAlphaPremultiplied();
-		bool pmaChecked = pma;
-#if defined(SPINE_4_0) || defined(SPINE_4_1_OR_LATER) || defined(SPINE_4_2_OR_LATER)
-		ImGui::BeginDisabled();
-#endif
-		ImGui::Checkbox("Alpha premultiplied", &pmaChecked);
-#if defined(SPINE_4_0) || defined(SPINE_4_1_OR_LATER) || defined(SPINE_4_2_OR_LATER)
-		ImGui::EndDisabled();
-#endif
-		if (pmaChecked != pma)
-		{
-			m_siv3dSpinePlayer.premultiplyAlpha(pmaChecked);
-		}
-		ImGui::SeparatorText("Blend-mode");
-
-		HelpMarker("Force if blend-mode-multiply is not well rendered.");
-
-		bool toForceBlendModeNormal = m_siv3dSpinePlayer.isBlendModeNormalForced();
-		ImGui::Checkbox("To force blend-mode-normal", &toForceBlendModeNormal);
-		m_siv3dSpinePlayer.forceBlendModeNormal(toForceBlendModeNormal);
-
-		ImGui::SeparatorText("Draw order");
-		HelpMarker("Draw order is crutial only when rendering multiple Spines.\n"
-			"Be sure to make it appropriate in prior to add animation effect.");
-
-		if (m_siv3dSpinePlayer.getNumberOfSpines() > 1)
-		{
-			bool drawOrder = m_siv3dSpinePlayer.isDrawOrderReversed();
-			ImGui::Checkbox("Reverse draw order", &drawOrder);
-			m_siv3dSpinePlayer.setDrawOrder(drawOrder);
-		}
-	}
-
-	if (ImGui::CollapsingHeader("Export"))
-	{
-		HelpMarker("GIF delay is defined in 10ms increments.\n Mind that fractional part will be discarded.");
-
-		constexpr int minFps = 15;
-		constexpr int maxImageFps = 60;
-		constexpr int maxVideoFps = 120;
-		if constexpr (sizeof(s3d::int32) == sizeof(int))
-		{
-			ImGui::SliderInt("GIF", &m_imageFps, minFps, maxImageFps);
-			ImGui::SliderInt("Video", &m_videoFps, minFps, maxVideoFps);
-		}
-		else
-		{
-			static int imageFps = m_imageFps;
-			static int videoFps = m_videoFps;
-			ImGui::SliderInt("GIF", &imageFps, minFps, maxImageFps);
-			ImGui::SliderInt("Video", &videoFps, minFps, maxVideoFps);
-			m_imageFps = static_cast<s3d::int32>(imageFps);
-			m_videoFps = static_cast<s3d::int32>(videoFps);
-		}
+		ImGui::EndTabBar();
 	}
 
 	ImGui::End();
@@ -867,7 +916,7 @@ void CSiv3dMainWindow::imGuiHelpDialogue() const
 			kMax
 		};
 	};
-	constexpr const char* const mouseHelps[][MouseHelp::kMax] =
+	static constexpr const char* const mouseHelps[][MouseHelp::kMax] =
 	{
 		{"L-drag", "Move view-point"},
 		{"R + L-click", "Switch animation"},
@@ -901,9 +950,6 @@ void CSiv3dMainWindow::imGuiHelpDialogue() const
 	ImGui::SeparatorText("Keyboard functions:");
 	ImGui::Indent();
 	ImGui::BulletText("M: Show/hide window menu.");
-#if !defined(SPINE_4_0) && !defined(SPINE_4_1_OR_LATER) && !defined(SPINE_4_2_OR_LATER)
-	ImGui::BulletText("A: Toggle PMA");
-#endif
 	ImGui::Unindent();
 
 	ImGui::SeparatorText("How to load");

@@ -142,15 +142,12 @@ void CSpinePlayer::setupSkin()
 	}
 }
 
-bool CSpinePlayer::premultiplyAlpha(bool toBePremultiplied, size_t nDrawableIndex)
+void CSpinePlayer::premultiplyAlpha(bool toBePremultiplied, size_t nDrawableIndex)
 {
 	if (nDrawableIndex < m_drawables.size())
 	{
 		m_drawables[nDrawableIndex]->premultiplyAlpha(toBePremultiplied);
-		return true;
 	}
-
-	return false;
 }
 
 bool CSpinePlayer::isAlphaPremultiplied(size_t nDrawableIndex) const
@@ -163,15 +160,12 @@ bool CSpinePlayer::isAlphaPremultiplied(size_t nDrawableIndex) const
 	return false;
 }
 
-bool CSpinePlayer::forceBlendModeNormal(bool toForce, size_t nDrawableIndex)
+void CSpinePlayer::forceBlendModeNormal(bool toForce, size_t nDrawableIndex)
 {
 	if (nDrawableIndex < m_drawables.size())
 	{
 		m_drawables[nDrawableIndex]->forceBlendModeNormal(toForce);
-		return true;
 	}
-
-	return false;
 }
 
 bool CSpinePlayer::isBlendModeNormalForced(size_t nDrawableIndex) const
@@ -179,6 +173,42 @@ bool CSpinePlayer::isBlendModeNormalForced(size_t nDrawableIndex) const
 	if (nDrawableIndex < m_drawables.size())
 	{
 		return m_drawables[nDrawableIndex]->isBlendModeNormalForced();
+	}
+
+	return false;
+}
+
+void CSpinePlayer::setPause(bool paused, size_t nDrawableIndex)
+{
+	if (nDrawableIndex < m_drawables.size())
+	{
+		m_drawables[nDrawableIndex]->setPause(paused);
+	}
+}
+
+bool CSpinePlayer::isPaused(size_t nDrawableIndex) const
+{
+	if (nDrawableIndex < m_drawables.size())
+	{
+		return m_drawables[nDrawableIndex]->isPaused();
+	}
+
+	return false;
+}
+
+void CSpinePlayer::setVisibility(bool visible, size_t nDrawableIndex)
+{
+	if (nDrawableIndex < m_drawables.size())
+	{
+		m_drawables[nDrawableIndex]->setVisibility(visible);
+	}
+}
+
+bool CSpinePlayer::isVisible(size_t nDrawableIndex) const
+{
+	if (nDrawableIndex < m_drawables.size())
+	{
+		return m_drawables[nDrawableIndex]->isVisible();
 	}
 
 	return false;
@@ -506,7 +536,7 @@ void CSpinePlayer::clearDrawables()
 bool CSpinePlayer::addDrawable(spine::SkeletonData* const pSkeletonData)
 {
 	if (pSkeletonData == nullptr)return false;
-	auto pDrawable = std::make_shared<CSpineDrawable>(pSkeletonData);
+	auto pDrawable = std::make_unique<CSpineDrawable>(pSkeletonData);
 	if (pDrawable.get() == nullptr)return false;
 
 	pDrawable->skeleton()->setPosition(m_fBaseSize.x / 2, m_fBaseSize.y / 2);

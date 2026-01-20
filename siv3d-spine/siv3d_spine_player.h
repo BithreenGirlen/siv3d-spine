@@ -16,7 +16,7 @@ public:
 
 	void redraw();
 
-	s3d::Mat3x2 calculateTransformMatrix(s3d::Size renderTargetSize = s3d::Graphics2D::GetRenderTargetSize()) const;
+	s3d::Mat3x2 calculateTransformMatrix(const s3d::Size&& renderTargetSize = s3d::Graphics2D::GetRenderTargetSize()) const;
 	s3d::Optional<s3d::Vector4D<float>> getCurrentBoundingOfSlot(const std::string& slotName) const;
 private:
 	void workOutDefaultScale() override;

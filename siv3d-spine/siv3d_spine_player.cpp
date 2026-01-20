@@ -111,7 +111,7 @@ void CSiv3dSpinePlayer::redraw()
 	}
 }
 
-s3d::Mat3x2 CSiv3dSpinePlayer::calculateTransformMatrix(s3d::Size renderTargetSize) const
+s3d::Mat3x2 CSiv3dSpinePlayer::calculateTransformMatrix(const s3d::Size&& renderTargetSize) const
 {
 	float fX = (m_fBaseSize.x * m_fSkeletonScale - renderTargetSize.x) / 2;
 	float fY = (m_fBaseSize.y * m_fSkeletonScale - renderTargetSize.y) / 2;

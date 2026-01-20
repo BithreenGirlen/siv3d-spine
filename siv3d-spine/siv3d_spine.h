@@ -1,7 +1,7 @@
 ﻿#ifndef SIV3D_SPINE_H_
 #define SIV3D_SPINE_H_
 
-/* "s3d::color"と"spine::color"の衝突を避ける。 */
+/* "s3d::Color"と"spine::Color"の衝突を避ける。 */
 #define NO_S3D_USING
 #include <Siv3D.hpp>
 
@@ -29,6 +29,14 @@ public:
 	void forceBlendModeNormal(bool toForce);
 	bool isBlendModeNormalForced() const;
 
+	/// @brief 時間更新を行うか否か
+	void setPause(bool paused);
+	bool isPaused() const;
+
+	/// @brief 描画を行うか否か
+	void setVisibility(bool visible);
+	bool isVisible() const;
+
 	void update(float fDelta);
 	void draw();
 
@@ -42,6 +50,8 @@ public:
 private:
 	bool m_isAlphaPremultiplied = false;
 	bool m_toForceBlendModeNormal = false;
+	bool m_isVisible = true;
+	bool m_isPaused = false;
 
 	spine::Skeleton* m_skeleton = nullptr;
 	spine::AnimationState* m_animationState = nullptr;
@@ -56,7 +66,7 @@ private:
 
 	spine::Vector<spine::String> m_slotsToLeaveOut;
 
-	bool IsSlotToBeLeftOut(const spine::String& slotName);
+	bool isSlotToBeLeftOut(const spine::String& slotName);
 };
 
 class CS3dTextureLoader : public spine::TextureLoader
