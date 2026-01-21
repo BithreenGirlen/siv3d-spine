@@ -318,7 +318,7 @@ void CSpinePlayer::mixSkins(const std::vector<std::string>& skinNames)
 	}
 }
 
-void CSpinePlayer::mixAnimations(const std::vector<std::string>& animationNames, bool loop)
+void CSpinePlayer::addAnimationTracks(const std::vector<std::string>& animationNames, bool loop)
 {
 	clearAnimationTracks();
 

@@ -71,7 +71,7 @@ public:
 
 	void setSlotsToExclude(const std::vector<std::string>& slotNames);
 	void mixSkins(const std::vector<std::string>& skinNames);
-	void mixAnimations(const std::vector<std::string>& animationNames, bool loop = false);
+	void addAnimationTracks(const std::vector<std::string>& animationNames, bool loop = false);
 
 	/// @brief 複数の装着品候補のあるスロットを探索。
 	/// @return スロット名を見出し語、装着品名を値とした辞書。

@@ -624,7 +624,7 @@ void CSiv3dMainWindow::imGuiSpineParameterDialogue()
 				const std::vector<std::string>& slotNames = m_siv3dSpinePlayer.getSlotNames();
 				static ImGuiComboBox slotsComboBox;
 				slotsComboBox.update(slotNames, "Slot##SlotBounding");
-				const auto& slotBounding = m_siv3dSpinePlayer.getCurrentBoundingOfSlot(slotNames[slotsComboBox.selectedIndex]);
+				const s3d::Optional<s3d::Vector4D<float>>& slotBounding = m_siv3dSpinePlayer.getCurrentBoundingOfSlot(slotNames[slotsComboBox.selectedIndex]);
 				if (!slotBounding)
 				{
 					ImGui::TextColored(ImVec4{ 1.f, 0.f, 0.f, 1.f }, "Slot not found in this animation.");
@@ -651,6 +651,34 @@ void CSiv3dMainWindow::imGuiSpineParameterDialogue()
 							const s3d::ColorF colour(fRectangleColor.x, fRectangleColor.y, fRectangleColor.z, fRectangleColor.w);
 							const s3d::Transformer2D t(m_siv3dSpinePlayer.calculateTransformMatrix(m_pSpinePlayerTexture->size()));
 							rectF.drawFrame(fThickness, colour);
+						}
+
+						/* 特定のスロットに大きさ・位置を合わせる。 */
+						if (ImGui::Button("Fit to this slot"))
+						{
+							/*
+							* Todo: 直感的に設定できる設計にする
+							* 
+							* やっているのは以下の計算:
+							* (1)大きさをスロットの大きさに合わせ、
+							* (2)ワールド座標系を更新し、
+							* (3)新しい座標系でのスロット位置を求め、
+							* (4)基準位置を更新。
+							*/
+							m_siv3dSpinePlayer.setBaseSize(slotBounding->z, slotBounding->w);
+							m_siv3dSpinePlayer.update(0.f);
+							const s3d::Optional<s3d::Vector4D<float>>& updatedSlotBounding = m_siv3dSpinePlayer.getCurrentBoundingOfSlot(slotNames[slotsComboBox.selectedIndex]);
+							if (updatedSlotBounding)
+							{
+								s3d::Vector2D<float> offsetToBe = m_siv3dSpinePlayer.getOffset();
+								offsetToBe.x += updatedSlotBounding->x;
+								offsetToBe.y += updatedSlotBounding->y;
+								m_siv3dSpinePlayer.setOffset(offsetToBe.x, offsetToBe.y);
+								m_siv3dSpinePlayer.setBaseSize(slotBounding->z, slotBounding->w);
+
+								resizeWindow();
+								m_spineCanvasScale = m_siv3dSpinePlayer.getSkeletonScale();
+							}
 						}
 					}
 				}
@@ -685,20 +713,20 @@ void CSiv3dMainWindow::imGuiSpineParameterDialogue()
 
 				ImGui::TreePop();
 			}
-			/* 動作合成 */
-			if (ImGui::TreeNode("Mix animation"))
+			/* 動作予約 */
+			if (ImGui::TreeNode("Add tracks"))
 			{
-				HelpMarker("Mixing animations will overwrite animation state.\n"
+				HelpMarker("Adding tracks will overwrite animation state.\n"
 					"Uncheck all the items and then apply to reset the state.");
 
 				static ImGuiListview animationsListView;
 				animationsListView.update(animationNames, "Animation to mix##AnimationsToMix");
 
-				if (ImGui::Button("Apply##MixAnimations"))
+				if (ImGui::Button("Add##AddAnimationTracks"))
 				{
 					std::vector<std::string> checkedItems;
 					animationsListView.pickupCheckedItems(animationNames, checkedItems);
-					m_siv3dSpinePlayer.mixAnimations(checkedItems);
+					m_siv3dSpinePlayer.addAnimationTracks(checkedItems);
 				}
 
 				ImGui::TreePop();
