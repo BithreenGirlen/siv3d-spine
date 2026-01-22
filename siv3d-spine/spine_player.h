@@ -64,6 +64,7 @@ public:
 	/// @param fStart 再生区間の開始位置
 	/// @param fEnd 再生区間の終了位置
 	void getCurrentAnimationTime(float* fTrack, float* fLast, float* fStart, float* fEnd);
+	float getAnimationDuration(const char* animationName);
 
 	const std::vector<std::string>& getSlotNames() const;
 	const std::vector<std::string>& getSkinNames() const;
@@ -72,6 +73,8 @@ public:
 	void setSlotsToExclude(const std::vector<std::string>& slotNames);
 	void mixSkins(const std::vector<std::string>& skinNames);
 	void addAnimationTracks(const std::vector<std::string>& animationNames, bool loop = false);
+	void mixAnimations(const char* fadeOutAnimationName, const char* fadeInAnimationName, float mixTime);
+	void clearMixedAnimation();
 
 	/// @brief 複数の装着品候補のあるスロットを探索。
 	/// @return スロット名を見出し語、装着品名を値とした辞書。

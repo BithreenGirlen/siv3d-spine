@@ -32,10 +32,6 @@ CSiv3dMainWindow::~CSiv3dMainWindow()
 
 void CSiv3dMainWindow::display()
 {
-#if 0
-	s3d::Graphics::SetVSyncEnabled(false);
-#endif
-
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGui::StyleColorsLight();
@@ -99,7 +95,7 @@ void CSiv3dMainWindow::initialiseMenuBar()
 		{
 			{ U"File", { U"\U000F102FOpen file"} },
 			{ U"Export", { U"\U000F0193Snap as Webp", U"\U000F05D8Export as GIF", U"\U000F0BDCExport as video"} },
-			{ U"Window", { U"Hide Spine parameter", U"\U000F0625Show help", U"Fit base size to current frame", U"Reset base size", U"Disable auto resizing"}}
+			{ U"Window", { U"\U000F06D1Hide Spine parameter", U"\U000F0625Show help", U"\U000F18F4Fit base size to current frame", U"Reset base size", U"Disable auto resizing"}}
 		};
 
 		const s3d::Array<s3d::Array<CSiv3dWindowMenu::ItemProprty>> menuItemProperties
@@ -183,8 +179,8 @@ void CSiv3dMainWindow::menuOnOpenFile()
 	{
 		s3d::Window::SetTitle(s3d::FileSystem::BaseName(atlasFilePaths[0]));
 		m_spineCanvasScale = m_siv3dSpinePlayer.getSkeletonScale();
+		resizeWindow();
 	}
-	resizeWindow();
 }
 
 void CSiv3dMainWindow::menuOnSnapImage()
@@ -251,7 +247,7 @@ void CSiv3dMainWindow::handleMouseEvent()
 
 	const auto& io = ImGui::GetIO();
 	if (io.WantCaptureMouse)return;
-	
+
 	if (s3d::MouseL.pressed())
 	{
 		if (s3d::KeyLControl.pressed() && s3d::Window::GetStyle() == s3d::WindowStyle::Frameless) /* 枠無しウィンドウ移動 */
@@ -579,6 +575,24 @@ void CSiv3dMainWindow::imGuiSpineParameterDialogue()
 			}
 		};
 
+	const auto ScrollableSliderInt = [](const char* label, int* v, int v_min, int v_max)
+		{
+			ImGui::SliderInt(label, v, v_min, v_max);
+			ImGui::SetItemKeyOwner(ImGuiKey_MouseWheelY);
+			if (ImGui::IsItemHovered())
+			{
+				float wheel = ImGui::GetIO().MouseWheel;
+				if (wheel > 0 && *v < v_max)
+				{
+					++(*v);
+				}
+				else if (wheel < 0 && *v > v_min)
+				{
+					--(*v);
+				}
+			}
+		};
+
 	const auto ScrollableSliderFloat = [](const char* label, float* v, float v_min, float v_max)
 		{
 			ImGui::SliderFloat(label, v, v_min, v_max, "%.1f");
@@ -610,8 +624,8 @@ void CSiv3dMainWindow::imGuiSpineParameterDialogue()
 				ImGui::Text("Texture size: (%d, %d)", textureSize.x, textureSize.y);
 			}
 
-			s3d::Vector2D<float> baseSize = m_siv3dSpinePlayer.getBaseSize();
-			s3d::Vector2D<float> offset = m_siv3dSpinePlayer.getOffset();
+			const s3d::Vector2D<float> baseSize = m_siv3dSpinePlayer.getBaseSize();
+			const s3d::Vector2D<float> offset = m_siv3dSpinePlayer.getOffset();
 
 			ImGui::Text("Skeleton size: (%.2f, %.2f)", baseSize.x, baseSize.y);
 			ImGui::Text("Offset: (%.2f, %.2f)", offset.x, offset.y);
@@ -658,9 +672,9 @@ void CSiv3dMainWindow::imGuiSpineParameterDialogue()
 						{
 							/*
 							* Todo: 直感的に設定できる設計にする
-							* 
-							* やっているのは以下の計算:
-							* (1)大きさをスロットの大きさに合わせ、
+							*
+							* 行っているのは以下の計算:
+							* (1)スロットの大きさに合わせ、
 							* (2)ワールド座標系を更新し、
 							* (3)新しい座標系でのスロット位置を求め、
 							* (4)基準位置を更新。
@@ -676,15 +690,15 @@ void CSiv3dMainWindow::imGuiSpineParameterDialogue()
 								m_siv3dSpinePlayer.setOffset(offsetToBe.x, offsetToBe.y);
 								m_siv3dSpinePlayer.setBaseSize(slotBounding->z, slotBounding->w);
 
-								resizeWindow();
 								m_spineCanvasScale = m_siv3dSpinePlayer.getSkeletonScale();
+								resizeWindow();
 							}
 						}
 					}
 				}
-
 				ImGui::TreePop();
 			}
+
 			ImGui::EndTabItem();
 		} /* 寸法・座標・尺度 */
 
@@ -717,16 +731,63 @@ void CSiv3dMainWindow::imGuiSpineParameterDialogue()
 			if (ImGui::TreeNode("Add tracks"))
 			{
 				HelpMarker("Adding tracks will overwrite animation state.\n"
-					"Uncheck all the items and then apply to reset the state.");
+					"Clear them before setting another animation.");
 
-				static ImGuiListview animationsListView;
-				animationsListView.update(animationNames, "Animation to mix##AnimationsToMix");
+				static ImGuiListview animationTracksListView;
+				animationTracksListView.update(animationNames, "Tracks to add##AnimationTracksToAdd");
 
 				if (ImGui::Button("Add##AddAnimationTracks"))
 				{
 					std::vector<std::string> checkedItems;
-					animationsListView.pickupCheckedItems(animationNames, checkedItems);
+					animationTracksListView.pickupCheckedItems(animationNames, checkedItems);
 					m_siv3dSpinePlayer.addAnimationTracks(checkedItems);
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Clear##ClearAnimationTracks"))
+				{
+					animationTracksListView.clear(animationNames);
+					m_siv3dSpinePlayer.addAnimationTracks({});
+				}
+
+				ImGui::TreePop();
+			}
+
+			/* 動作遷移時間 */
+			if (ImGui::TreeNode("Mix animations"))
+			{
+				static ImGuiComboBox fadeOutAnimationComboBox;
+				fadeOutAnimationComboBox.update(animationNames, "##AnimationToFadeOut");
+				ImGui::SameLine();
+				ImGui::Text("Fade out");
+
+				static ImGuiComboBox fadeInAnimationComboBox;
+				fadeInAnimationComboBox.update(animationNames, "##AnimationToFadeIn");
+				ImGui::SameLine();
+				ImGui::Text("Fade in");
+
+				const std::string& fadeOut = animationNames[fadeOutAnimationComboBox.selectedIndex];
+				const std::string& fadeIn = animationNames[fadeInAnimationComboBox.selectedIndex];
+
+				float duration = m_siv3dSpinePlayer.getAnimationDuration(fadeOut.c_str());
+				if (s3d::NotEqual(duration, 0.f))
+				{
+					static float mixTime = 0.1f;
+					ImGui::SliderFloat("Mix time", &mixTime, 0.f, duration, "%0.2f");
+
+					if (ImGui::Button("Mix##MixAnimations"))
+					{
+						m_siv3dSpinePlayer.mixAnimations(fadeOut.c_str(), fadeIn.c_str(), mixTime);
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Clear##ClearMixedAnimations"))
+					{
+#if defined (SPINE_4_1_OR_LATER) || defined (SPINE_4_2_OR_LATER)
+						m_siv3dSpinePlayer.clearMixedAnimation();
+#else /* Spine 4.0以前 */
+						/* Spine::HashMapの操作手段が存在しない。 */
+						m_siv3dSpinePlayer.mixAnimations(fadeOut.c_str(), fadeIn.c_str(), 0.f);
+#endif
+					}
 				}
 
 				ImGui::TreePop();
@@ -897,33 +958,75 @@ void CSiv3dMainWindow::imGuiSpineParameterDialogue()
 				m_siv3dSpinePlayer.setPause(isPaused);
 			}
 
+			/* 統計 */
+			if (ImGui::TreeNode("Statistics"))
+			{
+				/* Visibleのチェックを外した時との差分が、Spineの描画に費やしている命令数。 */
+				const s3d::ProfilerStat& profilerStat = s3d::Profiler::GetStat();
+				ImGui::Text("Draw calls: %lu", profilerStat.drawCalls);
+				ImGui::Text("Triangle count: %lu", profilerStat.triangleCount);
+
+				bool isVsyncEnabled = s3d::Graphics::IsVSyncEnabled();
+				if (ImGui::Checkbox("VSync", &isVsyncEnabled))
+				{
+					s3d::Graphics::SetVSyncEnabled(isVsyncEnabled);
+				}
+				ImGui::Text("FPS: %d", s3d::Profiler::FPS());
+
+				ImGui::TreePop();
+			}
+
 			ImGui::EndTabItem();
 		} /* 描画 */
 
-		/* 書き出し */
-		if (ImGui::BeginTabItem("Export"))
+		/* Spineに関係しない、その他設定。 */
+		if (ImGui::BeginTabItem("Misc."))
 		{
-			static constexpr int minFps = 15;
-			static constexpr int maxImageFps = 60;
-			static constexpr int maxVideoFps = 120;
-			if constexpr (sizeof(s3d::int32) == sizeof(int))
+			/* 書き出しFPS */
+			if (ImGui::TreeNode("Export"))
 			{
-				ImGui::SliderInt("GIF", &m_imageFps, minFps, maxImageFps);
-				HelpMarker("GIF delay is defined in 10ms increments.\n Mind that fractional part will be discarded.");
-				ImGui::SliderInt("Video", &m_videoFps, minFps, maxVideoFps);
+				static constexpr int MinFps = 15;
+				static constexpr int MaxImageFps = 60;
+				static constexpr int MaxVideoFps = 60;
+
+				if constexpr (sizeof(s3d::int32) == sizeof(int))
+				{
+					ScrollableSliderInt("GIF", &m_imageFps, MinFps, MaxImageFps);
+					HelpMarker("GIF delay is defined in 10ms increments.\n Mind that fractional part will be discarded.");
+					ScrollableSliderInt("Video", &m_videoFps, MinFps, MaxVideoFps);
+				}
+				else
+				{
+					static int imageFps = m_imageFps;
+					static int videoFps = m_videoFps;
+					ScrollableSliderInt("GIF", &imageFps, MinFps, MaxImageFps);
+					ScrollableSliderInt("Video", &videoFps, MinFps, MaxVideoFps);
+					m_imageFps = static_cast<s3d::int32>(imageFps);
+					m_videoFps = static_cast<s3d::int32>(videoFps);
+				}
+
+				ImGui::TreePop();
 			}
-			else
+
+			/* ImGui字体大きさ変更 */
+			if (ImGui::TreeNode("Font size"))
 			{
-				static int imageFps = m_imageFps;
-				static int videoFps = m_videoFps;
-				ImGui::SliderInt("GIF", &imageFps, minFps, maxImageFps);
-				ImGui::SliderInt("Video", &videoFps, minFps, maxVideoFps);
-				m_imageFps = static_cast<s3d::int32>(imageFps);
-				m_videoFps = static_cast<s3d::int32>(videoFps);
+				static constexpr float MinFontSize = 16.f;
+				static constexpr float MaxFontSize = 48.f;
+				float fontSize = ImGui::GetFontSize();
+				float fontSizeValue = fontSize;
+				ScrollableSliderFloat("Font size", &fontSizeValue, MinFontSize, MaxFontSize);
+				if (s3d::NotEqual(fontSize, fontSizeValue))
+				{
+					ImGuiStyle& style = ImGui::GetStyle();
+					style._NextFrameFontSizeBase = fontSizeValue;
+				}
+
+				ImGui::TreePop();
 			}
 
 			ImGui::EndTabItem();
-		} /* 書き出し */
+		}
 
 		ImGui::EndTabBar();
 	}
@@ -956,11 +1059,14 @@ void CSiv3dMainWindow::imGuiHelpDialogue() const
 		{"Ctrl + L-drag", "Move borderless window"},
 	};
 
-	float inputTextWidth = 0.f;
-	for (const auto& mouseHelp : mouseHelps)
+	static float inputTextWidth = 0.f;
+	if (inputTextWidth == 0.f)
 	{
-		const auto& textSize = ImGui::CalcTextSize(reinterpret_cast<const char*>(mouseHelp[MouseHelp::Input]));
-		inputTextWidth = s3d::Max(inputTextWidth, textSize.x);
+		for (const auto& mouseHelp : mouseHelps)
+		{
+			const auto& textSize = ImGui::CalcTextSize(reinterpret_cast<const char*>(mouseHelp[MouseHelp::Input]));
+			inputTextWidth = s3d::Max(inputTextWidth, textSize.x);
+		}
 	}
 
 	ImGui::Begin("Help");
