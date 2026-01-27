@@ -65,7 +65,7 @@ void CSiv3dMainWindow::display()
 			{
 				const s3d::ScopedRenderTarget2D spinePlayerRenderTarget(*m_pSpinePlayerTexture.get());
 				const s3d::Transformer2D t(m_siv3dSpinePlayer.calculateTransformMatrix(m_pSpinePlayerTexture->size()));
-
+				const s3d::ScopedRenderStates2D s3dScopedRenderState2D(m_isWireframeMode ? s3d::RasterizerState::WireframeCullNone : s3d::RasterizerState::Default2D);
 				m_siv3dSpinePlayer.redraw();
 			}
 
@@ -74,7 +74,7 @@ void CSiv3dMainWindow::display()
 			spinePostRendering();
 		}
 
-		imGuiSpineParameterDialogue();
+		imGuiSpineToolDialogue();
 		imGuiHelpDialogue();
 
 		ImGui::Render();
@@ -95,7 +95,7 @@ void CSiv3dMainWindow::initialiseMenuBar()
 		{
 			{ U"File", { U"\U000F102FOpen file"} },
 			{ U"Export", { U"\U000F0193Snap as Webp", U"\U000F05D8Export as GIF", U"\U000F0BDCExport as video"} },
-			{ U"Window", { U"\U000F06D1Hide Spine parameter", U"\U000F0625Show help", U"\U000F18F4Fit base size to current frame", U"Reset base size", U"Disable auto resizing"}}
+			{ U"Window", { U"\U000F06D1Hide Spine tool", U"\U000F0625Show help", U"\U000F18F4Fit base size to current frame", U"Reset base size", U"Disable auto resizing"}}
 		};
 
 		const s3d::Array<s3d::Array<CSiv3dWindowMenu::ItemProprty>> menuItemProperties
@@ -109,7 +109,7 @@ void CSiv3dMainWindow::initialiseMenuBar()
 				{ std::bind(&CSiv3dMainWindow::menuOnExportAsVideo, this), CSiv3dWindowMenu::Restrictive::Yes }
 			},
 			{
-				{ std::bind(&CSiv3dMainWindow::menuOnHideSpineParameter, this), CSiv3dWindowMenu::Restrictive::Yes },
+				{ std::bind(&CSiv3dMainWindow::menuOnHideSpineTool, this), CSiv3dWindowMenu::Restrictive::Yes },
 				{ std::bind(&CSiv3dMainWindow::menuOnShowHelp, this), CSiv3dWindowMenu::Restrictive::No },
 				{ [this] /* 手動変更された現在の表示範囲に合わせる */
 					{
@@ -229,10 +229,10 @@ void CSiv3dMainWindow::menuOnExportAsVideo()
 	}
 }
 
-void CSiv3dMainWindow::menuOnHideSpineParameter()
+void CSiv3dMainWindow::menuOnHideSpineTool()
 {
-	m_isSpineParameterHidden ^= true;
-	m_siv3dWindowMenu.setLastItemChecked(m_isSpineParameterHidden);
+	m_isSpineToolHidden ^= true;
+	m_siv3dWindowMenu.setLastItemChecked(m_isSpineToolHidden);
 }
 
 void CSiv3dMainWindow::menuOnShowHelp()
@@ -470,11 +470,11 @@ void CSiv3dMainWindow::setEmbeddedFontForImgui() const
 #endif
 }
 
-void CSiv3dMainWindow::imGuiSpineParameterDialogue()
+void CSiv3dMainWindow::imGuiSpineToolDialogue()
 {
 	if (!m_siv3dSpinePlayer.hasSpineBeenLoaded())return;
 
-	if (m_isSpineParameterHidden)return;
+	if (m_isSpineToolHidden)return;
 
 #if 0
 #define U8_CAST(str) reinterpret_cast<const char*>(u8##str)
@@ -492,7 +492,7 @@ void CSiv3dMainWindow::imGuiSpineParameterDialogue()
 				return;
 			}
 
-			if (ImGui::BeginCombo(comboLabel, itemNames[selectedIndex].c_str()))
+			if (ImGui::BeginCombo(comboLabel, itemNames[selectedIndex].c_str(), ImGuiComboFlags_HeightLarge))
 			{
 				for (size_t i = 0; i < itemNames.size(); ++i)
 				{
@@ -611,9 +611,9 @@ void CSiv3dMainWindow::imGuiSpineParameterDialogue()
 			}
 		};
 
-	ImGui::Begin("Spine parameter");
+	ImGui::Begin("Spine tool");
 
-	if (ImGui::BeginTabBar("Parameter tabs", ImGuiTabBarFlags_None))
+	if (ImGui::BeginTabBar("Tool tabs", ImGuiTabBarFlags_None))
 	{
 		/* 寸法・座標・尺度 */
 		if (ImGui::BeginTabItem("Size/Scale"))
@@ -957,6 +957,9 @@ void CSiv3dMainWindow::imGuiSpineParameterDialogue()
 			{
 				m_siv3dSpinePlayer.setPause(isPaused);
 			}
+
+			/* 頂点位置確認用 */
+			ImGui::Checkbox("Wireframe", &m_isWireframeMode);
 
 			/* 統計 */
 			if (ImGui::TreeNode("Statistics"))

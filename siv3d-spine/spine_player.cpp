@@ -602,7 +602,7 @@ bool CSpinePlayer::setupDrawables()
 			if (animationName == nullptr)continue;
 
 			const auto& iter = std::find(m_animationNames.begin(), m_animationNames.end(), animationName);
-			if (iter == m_animationNames.cend())m_animationNames.push_back(animationName);
+			if (iter == m_animationNames.cend())m_animationNames.emplace_back(animationName);
 		}
 
 		auto& skins = pSkeletonDatum->getSkins();
@@ -612,7 +612,7 @@ bool CSpinePlayer::setupDrawables()
 			if (skinName == nullptr)continue;
 
 			const auto& iter = std::find(m_skinNames.begin(), m_skinNames.end(), skinName);
-			if (iter == m_skinNames.cend())m_skinNames.push_back(skinName);
+			if (iter == m_skinNames.cend())m_skinNames.emplace_back(skinName);
 		}
 
 		auto& slots = pSkeletonDatum->getSlots();
@@ -620,12 +620,9 @@ bool CSpinePlayer::setupDrawables()
 		{
 			const char* szName = slots[ii]->getName().buffer();
 			const auto& iter = std::find(m_slotNames.begin(), m_slotNames.end(), szName);
-			if (iter == m_slotNames.cend())m_slotNames.push_back(szName);
+			if (iter == m_slotNames.cend())m_slotNames.emplace_back(szName);
 		}
 	}
-
-	std::sort(m_skinNames.begin(), m_skinNames.end());
-	std::sort(m_slotNames.begin(), m_slotNames.end());
 
 	workOutDefaultOffset();
 

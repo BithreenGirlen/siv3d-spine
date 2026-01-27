@@ -10,7 +10,7 @@
 namespace siv3d_spine_loader
 {
 	/// @brief Atlas作成
-	std::shared_ptr<spine::Atlas> ReadAtlasFromFile(const s3d::FilePath& filePath, spine::TextureLoader* pTextureLoader);
+	std::shared_ptr<spine::Atlas> ReadAtlasFromFile(const s3d::FilePathView filePath, spine::TextureLoader* pTextureLoader);
 	std::shared_ptr<spine::Atlas> ReadAtlasFromMemory(const s3d::Blob& atlasFileData, s3d::FilePathView textureDirectory, spine::TextureLoader* pTextureLoader);
 
 	/// @brief 内部でJSON形式かバイナリ形式か判断してSkeletonData作成。

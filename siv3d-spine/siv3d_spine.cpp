@@ -293,7 +293,7 @@ void CS3dSpineDrawable::draw()
 		 * Here sampler state is fixed to clampLinear.
 		 * More accurate way is to refer to AtlasPage::uWrap and AtlasPage::magFilter
 		 */
-		s3d::ScopedRenderStates2D s3dScopedRenderState2D(s3dBlendState, s3d::SamplerState::ClampLinear);
+		const s3d::ScopedRenderStates2D s3dScopedRenderState2D(s3dBlendState, s3d::SamplerState::ClampLinear);
 		pTexture != nullptr ? m_buffer2d.draw(*pTexture) : m_buffer2d.draw();
 
 		m_skeletonClipping.clipEnd(slot);

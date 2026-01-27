@@ -23,8 +23,10 @@ private:
 
 	bool m_isAutoWindowResizingDisabled = false;
 
-	bool m_isSpineParameterHidden = false;
+	bool m_isSpineToolHidden = false;
 	bool m_isHelpDialogueShown = false;
+
+	bool m_isWireframeMode = false;
 
 	CSiv3dRecorder m_siv3dRecorder;
 	s3d::int32 m_imageFps = 30;
@@ -38,7 +40,7 @@ private:
 	void menuOnExportAsGif();
 	void menuOnExportAsVideo();
 
-	void menuOnHideSpineParameter();
+	void menuOnHideSpineTool();
 	void menuOnShowHelp();
 
 	void handleMouseEvent();
@@ -53,7 +55,7 @@ private:
 	s3d::FilePath buildExportFilePath();
 
 	void setEmbeddedFontForImgui() const;
-	void imGuiSpineParameterDialogue();
+	void imGuiSpineToolDialogue();
 	void imGuiHelpDialogue() const;
 };
 

@@ -152,23 +152,25 @@ namespace siv3d_spine_loader
 }
 
 
-std::shared_ptr<spine::Atlas> siv3d_spine_loader::ReadAtlasFromFile(const s3d::FilePath& filePath, spine::TextureLoader* pTextureLoader)
+std::shared_ptr<spine::Atlas> siv3d_spine_loader::ReadAtlasFromFile(const s3d::FilePathView filePath, spine::TextureLoader* pTextureLoader)
 {
 	s3d::Blob blob;
 	bool result = blob.createFromFile(filePath);
 	if (!result) return nullptr;
 
-	const s3d::FilePath textutreDirectory = s3d::FileSystem::IsResourcePath(filePath) ?
-		[&filePath]() -> const s3d::FilePath
+	/*
+	* "s3d::FileSystem::ParentPath"はリソースパスに対しては空文字を返し、
+	* リソースパスではない場合でも結局すぐにUTF-8へ変換するためs3d::FilePathの動的確保を行う必要がないことから、
+	* ここでは自前操作で親階層を指すs3d::FilePathViewを生成する。
+	*/
+	s3d::FilePathView textureDirectory = 
+		[&filePath]() -> s3d::FilePathView
 		{
-			size_t pos = filePath.lastIndexOf(U'/');
-			if (pos == s3d::FilePath::npos)pos = 0;
-			return filePath.substr(0, pos);
-		}() :
-		s3d::FileSystem::ParentPath(filePath);
-	if (textutreDirectory.empty()) return nullptr;
+			size_t pos = filePath.lastIndexOfAny(U"\\/");
+			return s3d::FilePathView(filePath.data(), pos != s3d::FilePath::npos ? pos : filePath.size());
+		}();
 
-	return ReadAtlasFromMemory(blob, textutreDirectory, pTextureLoader);
+	return ReadAtlasFromMemory(blob, textureDirectory, pTextureLoader);
 }
 
 std::shared_ptr<spine::Atlas> siv3d_spine_loader::ReadAtlasFromMemory(const s3d::Blob& atlasFileData, s3d::FilePathView textureDirectory, spine::TextureLoader* pTextureLoader)
