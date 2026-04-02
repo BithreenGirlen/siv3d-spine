@@ -15,11 +15,13 @@ public:
 	bool addSpineFromFile(const s3d::FilePath& atlasFilePath, const s3d::FilePath& skelFilePath);
 
 	void redraw();
-
+	/// @brief 描画対象の寸法に合うよう変形する行列を算出。s3d::Transformer2Dと組み合わせることを想定
 	s3d::Mat3x2 calculateTransformMatrix(const s3d::Size&& renderTargetSize = s3d::Graphics2D::GetRenderTargetSize()) const;
-	s3d::Optional<s3d::Vector4D<float>> getCurrentBoundingOfSlot(const std::string& slotName) const;
+	s3d::Optional<s3d::Vector4D<float>> getCurrentBoundingOfSlot(std::string_view slotName) const;
 private:
+	/// @brief モニタ解像度より大きい場合、収まるよう縮小率を算出。元々収まるなら等倍
 	void workOutDefaultScale() override;
+	/// @brief 最も原点に近い全体境界矩形の位置を算出
 	void workOutDefaultOffset() override;
 };
 

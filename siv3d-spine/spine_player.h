@@ -20,6 +20,7 @@ public:
 	CSpinePlayer();
 	virtual ~CSpinePlayer();
 
+	/// @brief 位置・速度・尺度・動作名を同期して再生するSpineの数を取得
 	size_t getNumberOfSpines() const;
 	bool hasSpineBeenLoaded() const;
 
@@ -42,7 +43,7 @@ public:
 	void setSkinByName(const char* skinName);
 	void setupSkin();
 
-	void premultiplyAlpha(bool toBePremultiplied, size_t nDrawableIndex = 0);
+	void premultiplyAlpha(bool premultiplied, size_t nDrawableIndex = 0);
 	bool isAlphaPremultiplied(size_t nDrawableIndex = 0) const;
 
 	void forceBlendModeNormal(bool toForce, size_t nDrawableIndex = 0);
@@ -57,6 +58,7 @@ public:
 	void setDrawOrder(bool toBeReversed);
 	bool isDrawOrderReversed() const;
 
+	/// @brief 現在再生している動作の名称を取得
 	const char* getCurrentAnimationName();
 	/// @brief 現在再生されている動作の時間情報を取得
 	/// @param fTrack 再生が始まってからの総経過時間
@@ -64,36 +66,50 @@ public:
 	/// @param fStart 再生区間の開始位置
 	/// @param fEnd 再生区間の終了位置
 	void getCurrentAnimationTime(float* fTrack, float* fLast, float* fStart, float* fEnd);
+	/// @brief 再生位置の変更
+	void setCurrentAnimationTime(float animationTime);
+	/// @brief 動作の再生時間を取得
 	float getAnimationDuration(const char* animationName);
 
 	const std::vector<std::string>& getSlotNames() const;
 	const std::vector<std::string>& getSkinNames() const;
 	const std::vector<std::string>& getAnimationNames() const;
 
+	/// @brief 描画対象から除外するスロットを登録
 	void setSlotsToExclude(const std::vector<std::string>& slotNames);
+	/// @brief 現在設定されているスキンを上書きしてスキン合成。上書きなので再読み込みしないと元に戻せなくなります
 	void mixSkins(const std::vector<std::string>& skinNames);
 	void addAnimationTracks(const std::vector<std::string>& animationNames, bool loop = false);
+	/// @brief 或る動作から別の或る動作への遷移時間を設定
 	void mixAnimations(const char* fadeOutAnimationName, const char* fadeInAnimationName, float mixTime);
+	/// @brief 全ての動作間の遷移時間を初期化。Spine4.0以前ではこの機能は無効
 	void clearMixedAnimation();
 
-	/// @brief 複数の装着品候補のあるスロットを探索。
-	/// @return スロット名を見出し語、装着品名を値とした辞書。
+	/// @brief 複数の装着品候補のあるスロットを探索
+	/// @return スロット名を見出し語、装着品名を値とした辞書
 	std::unordered_map<std::string, std::vector<std::string>> getSlotNamesWithTheirAttachments();
-	/// @brief 現在の装着品を強制差し替え。
+	/// @brief 現在の装着品を強制差し替え
 	bool replaceAttachment(const char* szSlotName, const char* szAttachmentName);
 
-	FPoint2 getBaseSize() const;
+	/// @brief ワールド座標における表示領域の大きさを設定
 	void setBaseSize(float fWidth, float fHeight);
+	FPoint2 getBaseSize() const;
 	void resetBaseSize();
 
+	/// @brief 表示領域の開始座標を設定
+	void setOffset(float fX, float fY);
 	FPoint2 getOffset() const;
-	void setOffset(float fWidth, float fHeight);
 
-	float getSkeletonScale() const;
+	/// @brief 変形行列算出時の拡縮を変更。
+	/// @remark Boneの内部変数を変更するものではありません。
 	void setSkeletonScale(float fScale);
+	float getSkeletonScale() const;
 
-	float getTimeScale() const;
+	/// @brief 更新時の加算時間係数を変更。
+	/// @param fTimeScale
+	/// @remark animationStateの内部変数を変更するものではありません。
 	void setTimeScale(float fTimeScale);
+	float getTimeScale() const;
 protected:
 	enum Constants { kBaseWidth = 1280, kBaseHeight = 720, kMinAtlas = 1024 };
 

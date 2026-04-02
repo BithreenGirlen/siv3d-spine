@@ -710,7 +710,11 @@ void CSiv3dMainWindow::imGuiSpineToolDialogue()
 			m_siv3dSpinePlayer.getCurrentAnimationTime(&animationWatch.x, &animationWatch.y, &animationWatch.z, &animationWatch.w);
 
 			/* 動作名と再生区間 */
-			ImGui::SliderFloat(pzAnimationName, &animationWatch.y, animationWatch.z, animationWatch.w, "%0.2f");
+			if (ImGui::SliderFloat(pzAnimationName, &animationWatch.y, animationWatch.z, animationWatch.w, "%0.2f"))
+			{
+				/* 再生位置変更 */
+				m_siv3dSpinePlayer.setCurrentAnimationTime(animationWatch.y);
+			}
 			ImGui::Text("Time scale: %.2f", m_siv3dSpinePlayer.getTimeScale());
 
 			const std::vector<std::string>& animationNames = m_siv3dSpinePlayer.getAnimationNames();
@@ -909,16 +913,15 @@ void CSiv3dMainWindow::imGuiSpineToolDialogue()
 #if defined(SPINE_4_0) || defined(SPINE_4_1_OR_LATER) || defined(SPINE_4_2_OR_LATER)
 			ImGui::BeginDisabled();
 #endif
-			bool pmaCheckPressed = ImGui::Checkbox("Premultiplied alpha", &pma);
+			if (ImGui::Checkbox("Premultiply alpha", &pma))
+			{
+				m_siv3dSpinePlayer.premultiplyAlpha(pma);
+			}
 			HelpMarker("For Spine 3.8 and older, PMA should be configured manually.\n"
 				"For Spine 4.0 and later, PMA property of atlas page is applied.");
 #if defined(SPINE_4_0) || defined(SPINE_4_1_OR_LATER) || defined(SPINE_4_2_OR_LATER)
 			ImGui::EndDisabled();
 #endif
-			if (pmaCheckPressed)
-			{
-				m_siv3dSpinePlayer.premultiplyAlpha(pma);
-			}
 
 			bool toForceBlendModeNormal = m_siv3dSpinePlayer.isBlendModeNormalForced();
 			if (ImGui::Checkbox("Force blend-mode-normal", &toForceBlendModeNormal))

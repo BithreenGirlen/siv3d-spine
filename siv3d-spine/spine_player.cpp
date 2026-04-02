@@ -142,11 +142,11 @@ void CSpinePlayer::setupSkin()
 	}
 }
 
-void CSpinePlayer::premultiplyAlpha(bool toBePremultiplied, size_t nDrawableIndex)
+void CSpinePlayer::premultiplyAlpha(bool premultiplied, size_t nDrawableIndex)
 {
 	if (nDrawableIndex < m_drawables.size())
 	{
-		m_drawables[nDrawableIndex]->premultiplyAlpha(toBePremultiplied);
+		m_drawables[nDrawableIndex]->premultiplyAlpha(premultiplied);
 	}
 }
 
@@ -258,6 +258,29 @@ void CSpinePlayer::getCurrentAnimationTime(float* fTrack, float* fLast, float* f
 				if (fEnd != nullptr)*fEnd = tracks[i]->getAnimationEnd();
 
 				return;
+			}
+		}
+	}
+}
+
+void CSpinePlayer::setCurrentAnimationTime(float animationTime)
+{
+	restartAnimation();
+
+	for (const auto& pDrawable : m_drawables)
+	{
+		bool wasPaused = pDrawable->isPaused();
+		if (wasPaused)pDrawable->setPause(false);
+		pDrawable->update(animationTime);
+		if (wasPaused)pDrawable->setPause(true);
+
+		auto& tracks = pDrawable->animationState()->getTracks();
+		for (size_t i = 0; i < tracks.size(); ++i)
+		{
+			spine::TrackEntry* pTrackEntry = tracks[i];
+			if (pTrackEntry != nullptr)
+			{
+				pTrackEntry->setAnimationLast(animationTime);
 			}
 		}
 	}
@@ -493,11 +516,6 @@ bool CSpinePlayer::replaceAttachment(const char* szSlotName, const char* szAttac
 	return true;
 }
 
-FPoint2 CSpinePlayer::getBaseSize() const
-{
-	return m_fBaseSize;
-}
-
 void CSpinePlayer::setBaseSize(float fWidth, float fHeight)
 {
 	m_fBaseSize = { fWidth, fHeight };
@@ -505,6 +523,11 @@ void CSpinePlayer::setBaseSize(float fWidth, float fHeight)
 	m_fDefaultOffset = m_fOffset;
 
 	resetScale();
+}
+
+FPoint2 CSpinePlayer::getBaseSize() const
+{
+	return m_fBaseSize;
 }
 
 void CSpinePlayer::resetBaseSize()
@@ -525,20 +548,15 @@ void CSpinePlayer::resetBaseSize()
 	restartAnimation();
 }
 
+void CSpinePlayer::setOffset(float fX, float fY)
+{
+	m_fOffset.x = fX;
+	m_fOffset.y = fY;
+}
+
 FPoint2 CSpinePlayer::getOffset() const
 {
 	return m_fOffset;
-}
-
-void CSpinePlayer::setOffset(float fWidth, float fHeight)
-{
-	m_fOffset.x = fWidth;
-	m_fOffset.y = fHeight;
-}
-
-float CSpinePlayer::getSkeletonScale() const
-{
-	return m_fSkeletonScale;
 }
 
 void CSpinePlayer::setSkeletonScale(float fScale)
@@ -546,14 +564,19 @@ void CSpinePlayer::setSkeletonScale(float fScale)
 	m_fSkeletonScale = fScale;
 }
 
-float CSpinePlayer::getTimeScale() const
+float CSpinePlayer::getSkeletonScale() const
 {
-	return m_fTimeScale;
+	return m_fSkeletonScale;
 }
 
 void CSpinePlayer::setTimeScale(float fTimeScale)
 {
 	m_fTimeScale = fTimeScale;
+}
+
+float CSpinePlayer::getTimeScale() const
+{
+	return m_fTimeScale;
 }
 
 void CSpinePlayer::clearDrawables()

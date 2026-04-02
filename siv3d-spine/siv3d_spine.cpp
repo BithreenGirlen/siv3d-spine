@@ -51,9 +51,9 @@ spine::AnimationState* CS3dSpineDrawable::animationState() const
 	return m_animationState;
 }
 
-void CS3dSpineDrawable::premultiplyAlpha(bool toBePremultiplied)
+void CS3dSpineDrawable::premultiplyAlpha(bool premultiplied)
 {
-	m_isAlphaPremultiplied = toBePremultiplied;
+	m_isAlphaPremultiplied = premultiplied;
 }
 
 bool CS3dSpineDrawable::isAlphaPremultiplied() const

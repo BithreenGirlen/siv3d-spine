@@ -118,11 +118,11 @@ s3d::Mat3x2 CSiv3dSpinePlayer::calculateTransformMatrix(const s3d::Size&& render
 	return s3d::Mat3x2::Scale(m_fSkeletonScale).translated(-fX, -fY);
 }
 
-s3d::Optional<s3d::Vector4D<float>> CSiv3dSpinePlayer::getCurrentBoundingOfSlot(const std::string& slotName) const
+s3d::Optional<s3d::Vector4D<float>> CSiv3dSpinePlayer::getCurrentBoundingOfSlot(std::string_view slotName) const
 {
 	for (const auto& drawable : m_drawables)
 	{
-		const auto& rect = drawable->getBoundingBoxOfSlot(slotName.c_str(), slotName.size());
+		const auto& rect = drawable->getBoundingBoxOfSlot(slotName.data(), slotName.size());
 		if (rect.has_value())return rect;
 	}
 	return s3d::none;
@@ -143,14 +143,7 @@ void CSiv3dSpinePlayer::workOutDefaultScale()
 		float fScaleX = static_cast<float>(iDisplayWidth) / iSkeletonWidth;
 		float fScaleY = static_cast<float>(iDisplayHeight) / iSkeletonHeight;
 
-		if (fScaleX > fScaleY)
-		{
-			m_fDefaultScale = fScaleY;
-		}
-		else
-		{
-			m_fDefaultScale = fScaleX;
-		}
+		m_fDefaultScale = fScaleX > fScaleY ? fScaleY : fScaleX;
 	}
 }
 

@@ -37,6 +37,9 @@ public:
 	void setVisibility(bool visible);
 	bool isVisible() const;
 
+	/// @brief 時間の加算並びワールド座標の更新
+	/// @param fDelta 加算すべき時間(秒単位)
+	/// @remark 停止中や0.0fの時間加算であっても座標更新は行います
 	void update(float fDelta);
 	void draw();
 
