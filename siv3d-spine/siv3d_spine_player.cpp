@@ -118,7 +118,26 @@ s3d::Mat3x2 CSiv3dSpinePlayer::calculateTransformMatrix(const s3d::Size&& render
 	return s3d::Mat3x2::Scale(m_fSkeletonScale).translated(-fX, -fY);
 }
 
-s3d::Optional<s3d::Vector4D<float>> CSiv3dSpinePlayer::getCurrentBoundingOfSlot(std::string_view slotName) const
+s3d::Vector4D<float> CSiv3dSpinePlayer::getCurrentBoundingBox() const
+{
+	float fMinX = s3d::Largest<float>;
+	float fMinY = s3d::Largest<float>;
+	float fMaxX = s3d::Smallest<float>;
+	float fMaxY = s3d::Smallest<float>;
+
+	for (const auto& pDrawable : m_drawables)
+	{
+		const auto& rect = pDrawable->getBoundingBox();
+		fMinX = s3d::Min(fMinX, rect.x);
+		fMinY = s3d::Min(fMinY, rect.y);
+		fMaxX = s3d::Max(fMaxX, rect.x + rect.z);
+		fMaxY = s3d::Max(fMaxY, rect.y + rect.w);
+	}
+
+	return { fMinX, fMinY, fMaxX - fMinX, fMaxY - fMinY };
+}
+
+s3d::Optional<s3d::Vector4D<float>> CSiv3dSpinePlayer::getCurrentBoundingBoxOfSlot(std::string_view slotName) const
 {
 	for (const auto& drawable : m_drawables)
 	{

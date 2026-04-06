@@ -4,6 +4,7 @@
 #include "siv3d_window_menu.h"
 #include "../../siv3d-spine/siv3d_spine_player.h"
 #include "siv3d_recorder.h"
+#include "siv3d_imgui_dialogue.h"
 
 class CSiv3dMainWindow
 {
@@ -20,6 +21,7 @@ private:
 	/// @brief Spine描画先
 	std::unique_ptr<s3d::RenderTexture> m_pSpinePlayerTexture;
 	float m_spineCanvasScale = 1.f;
+	s3d::Point m_spineRenderPosition = {};
 
 	bool m_isAutoWindowResizingDisabled = false;
 
@@ -31,6 +33,17 @@ private:
 	CSiv3dRecorder m_siv3dRecorder;
 	s3d::int32 m_imageFps = 30;
 	s3d::int32 m_videoFps = 60;
+
+	siv3d_imgui_dialogue::SpineToolDatum m_spineToolDatum
+	{
+		.siv3dSpinePlayer = m_siv3dSpinePlayer,
+		.spinePlayerTexture = m_pSpinePlayerTexture,
+		.spineCanvasScale = m_spineCanvasScale,
+		.spineRenderPosition = m_spineRenderPosition,
+		.isWireFrameMode = m_isWireframeMode,
+		.imageFps = m_imageFps,
+		.videoFps = m_videoFps,
+	};
 
 	void initialiseMenuBar();
 
@@ -51,6 +64,7 @@ private:
 	void toggleWindowBorderStyle();
 
 	void spinePostRendering();
+	void startSpineRecording(CSiv3dRecorder::EOutputType outputType);
 
 	s3d::FilePath buildExportFilePath();
 

@@ -17,7 +17,11 @@ public:
 	void redraw();
 	/// @brief 描画対象の寸法に合うよう変形する行列を算出。s3d::Transformer2Dと組み合わせることを想定
 	s3d::Mat3x2 calculateTransformMatrix(const s3d::Size&& renderTargetSize = s3d::Graphics2D::GetRenderTargetSize()) const;
-	s3d::Optional<s3d::Vector4D<float>> getCurrentBoundingOfSlot(std::string_view slotName) const;
+
+	/// @brief 全体の境界矩形を算出。エフェクトの類は無限遠方に飛んでいくこともあるので、大きさは呼び出し側で要確認。
+	s3d::Vector4D<float> getCurrentBoundingBox() const;
+	/// @brief 特定スロットの境界矩形を算出。現在の動作で用いられていない場合は空。
+	s3d::Optional<s3d::Vector4D<float>> getCurrentBoundingBoxOfSlot(std::string_view slotName) const;
 private:
 	/// @brief モニタ解像度より大きい場合、収まるよう縮小率を算出。元々収まるなら等倍
 	void workOutDefaultScale() override;

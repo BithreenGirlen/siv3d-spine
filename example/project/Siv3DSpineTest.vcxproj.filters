@@ -279,6 +279,9 @@
     <ClCompile Include="..\..\siv3d-spine\siv3d_spine_loader.cpp">
       <Filter>Source File\siv3d-spine</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\siv3d_imgui_dialogue.cpp">
+      <Filter>Source File</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="App\Resource.rc">
@@ -324,6 +327,9 @@
     </ClInclude>
     <ClInclude Include="..\..\siv3d-spine\siv3d_spine_loader.h">
       <Filter>Header File\siv3d-spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\siv3d_imgui_dialogue.h">
+      <Filter>Header File</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
