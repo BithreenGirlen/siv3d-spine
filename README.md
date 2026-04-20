@@ -14,8 +14,8 @@ https://github.com/user-attachments/assets/2e2859bf-8c11-4c78-898c-bea186773a0d
 | --- | --- |
 | [siv3d_spine.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/siv3d-spine/siv3d_spine.cpp) | Siv3Dの機能を使ったSpineのテクスチャ生成・破棄、描画処理。 |
 | [siv3d_spine_blendmode.h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/siv3d-spine/siv3d_spine_blendmode.h) | Siv3Dの定数に基づくSpine混色法定義。 |
-| [siv3d_spine_extension.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/siv3d-spine/siv3d_spine_extension.cpp) | Spineの機能命令から呼び出されるメモリ割り当て・ファイル読み取り実装。 |
-| [siv3d_spine_loader.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/siv3d-spine/siv3d_spine_loader.cpp) | Spine出力ファイルの取り込み処理。 |
+| [siv3d_spine_extension.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/siv3d-spine/siv3d_spine_extension.cpp) | Spine内部から呼び出されるメモリ割り当て実装。 |
+| [siv3d_spine_loader.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/siv3d-spine/siv3d_spine_loader.cpp) | Siv3Dの機能を使ったSpine出力ファイルの取り込み処理。 |
 | [siv3d_spine_player.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/siv3d-spine/siv3d_spine_player.cpp) | Siv3Dの機能を使ったSpine描画時の視点・拡縮補正。 |
 | [spine_player.cpp/h](https://github.com/BithreenGirlen/Siv3D-Spine/blob/main/siv3d-spine/spine_player.cpp) | Spineの機能命令をまとめたもの。 |
 
@@ -23,8 +23,6 @@ https://github.com/user-attachments/assets/2e2859bf-8c11-4c78-898c-bea186773a0d
 - `spine_player.cpp/h`は描画ライブラリ側の機能に依らないよう設計しています。
   - 厳密には二次元座標の点`FPoint2`は描画ライブラリ側の定義なのですが、概ねどのライブラリも`(x, y)`の変数名なので、内部で使用しています。
 - Spine描画に用いる混色法は全てカスタム定義しています。これは定義済みの各種`s3d::BlendState`は基本的に`outA = dstA`の計算式になっていて`srcA`を寄与させる表現ができないためです。
-- `siv3d_spine_extension.cpp`は実際にはファイル読み取りを実装していません。これはファイルパスを引き渡すSpineの機能命令は用いず、Siv3Dを通じてメモリ展開したファイルデータを引き渡した方が一貫性を保てるからです。
-  - このメモリ展開は`siv3d_spine_loader.cpp`にて行っています。
 
 ### Spineに関係しないもの
 
@@ -64,6 +62,8 @@ https://github.com/user-attachments/assets/2e2859bf-8c11-4c78-898c-bea186773a0d
 
 ## 補足
 
+### 汎用ランタイムとの連繋
+
 - Spine `3.8`, `4.0`, `4.1`, `4.2`にて動作確認を行っています。`siv3d_spine.cpp`はマクロに応じて動作分岐しますので、以下のマクロを定義する必要があります。
 
 | 版 | 事前定義すべきマクロ |
@@ -75,3 +75,42 @@ https://github.com/user-attachments/assets/2e2859bf-8c11-4c78-898c-bea186773a0d
 
 - `spine-c`はより軽量なのですが、同じ出力ファイルを用いても剪断変形で`spine-cpp`よりも早く歪み限界が生じる、という挙動が見られるため不採用となりました。
 - `4.2`からは`spine::RenderCommand`クラスが新設されましたが、これは`spine::AtlasPage`にアクセスできない設計となっており、描画の正確性に支障をきたすため使用しておりません。
+
+### Windows埋め込みリソースからの読み込み方法
+
+1. `*.rc`ファイルにSpine出力ファイルを記述。
+
+```cpp
+# include <Siv3D/Windows/Resource.hpp>
+
+Resource(test_assets/2035/2035.atlas)
+Resource(test_assets/2035/2035.skel)
+Resource(test_assets/2035/2035.png)
+```
+
+2. atlasとskelの埋め込めパスを`CSiv3dSpinePlayer`に渡す。
+
+```cpp
+s3d::Array<s3d::FilePath> atlasFilePaths;
+s3d::Array<s3d::FilePath> skeletonFilePaths;
+
+atlasFilePaths.emplace_back(s3d::Resource(U"test_assets/2035/2035.atlas"));
+skeletonFilePaths.emplace_back(s3d::Resource(U"test_assets/2035/2035.skel"));
+
+m_siv3dSpinePlayer.loadSpineFromFile(atlasFilePaths, skeletonFilePaths);
+```
+
+### 描画時の変形
+
+拡縮・回転には`s3d::Transfrom2D`を、反転には`s3d::TextureRegion`を使って下さい。
+
+```cpp
+m_pSpinePlayerTexture->clear(s3d::ColorF(0.f, 0.f));
+{
+	const s3d::ScopedRenderTarget2D spinePlayerRenderTarget(*m_pSpinePlayerTexture.get());
+	const s3d::Transformer2D t(m_siv3dSpinePlayer.calculateTransformMatrix(m_pSpinePlayerTexture->size()));
+	m_siv3dSpinePlayer.redraw();
+}
+
+m_pSpinePlayerTexture->mirrored(m_toBemirrored).draw(m_spineRenderPosition);
+```
